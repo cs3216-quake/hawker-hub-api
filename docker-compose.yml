@@ -1,0 +1,36 @@
+app:
+  restart: always
+  image: nginx
+  volumes:
+    - ../hawker-hub:/var/www/data
+    - config/nginx/nginx-devel.conf:/etc/nginx/nginx.conf
+  ports:
+    - "80:80"
+  links:
+    - api1:api1
+
+api1:
+  restart: always
+  image: tutum/apache-php
+  ports:
+    - "80"
+  environment:
+    ALLOW_OVERRIDE: true
+  volumes:
+    - vendor:/vendor
+    - src:/app
+  links:
+    - db:mysql
+
+db:
+  restart: always
+  image: mysql:latest
+  expose:
+    - "3306"
+  ports:
+    - "3307:3306"
+  environment:
+    MYSQL_DATABASE: hawker-hub
+    MYSQL_USER: root
+    MYSQL_PASSWORD: 83GvYmK1C
+    MYSQL_ROOT_PASSWORD: 83GvYmK1C
