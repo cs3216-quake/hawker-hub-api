@@ -1,6 +1,15 @@
 
 # Hawker Hub (App)
 
+# Container Setup
+The stack contains `N + 1 + 1` docker containers where N is the number of serving APIs.
+It comprises
+
+  1. An NGINX container serving the static files, with all requests to `/api/` reverse proxied to one of N Apache+PHP containers. 
+  2. N Apache+PHP containers linked to the mySQL container
+  3. A MySQL container.
+
+
 # Prerequisites
 
 1. PHP (for installing Composer, OSX has it out of the box,
@@ -9,30 +18,32 @@
 
 # Preparation
 
-1. Download and build the front end repository
+Download and build the front end repository
 
 ```
 $ cd ..
 $ git clone https://github.com/cs3216-quake/hawker-hub
 $ cd hawker-hub
-$ gulp dist
+$ gulp
 ```
-   Make sure that the front end repository is located on the same directory
-   as the server, like this.
+Make sure that the front end repository is located on the same directory
+as the server, like this.
+
 ```
 /hawker-hub
 /hawker-hub-api
 ```
-2. Install Composer and PHP library dependencies.
+Install Composer and PHP library dependencies.
 
 ```
 $ curl -sS https://getcomposer.org/installer | php
 $ ./composer.phar install
 ```
-3. Make sure you have a working `docker-compose` command.
+
+Make sure you have a working `docker-compose` command.
 
 ```
-       $ docker-compose
+$ docker-compose
 ```
 
 # Running the App
