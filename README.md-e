@@ -11,40 +11,48 @@
 
 1. Download and build the front end repository
 
-       $ cd ..
-       $ git clone https://github.com/cs3216-quake/hawker-hub
-       $ cd hawker-hub
-       $ gulp dist
-
+```
+$ cd ..
+$ git clone https://github.com/cs3216-quake/hawker-hub
+$ cd hawker-hub
+$ gulp dist
+```
    Make sure that the front end repository is located on the same directory
    as the server, like this.
-
-       /hawker-hub
-       /hawker-hub-api
-
+```
+/hawker-hub
+/hawker-hub-api
+```
 2. Install Composer and PHP library dependencies.
 
-       $ curl -sS https://getcomposer.org/installer | php
-       $ ./composer.phar install
-
+```
+$ curl -sS https://getcomposer.org/installer | php
+$ ./composer.phar install
+```
 3. Make sure you have a working `docker-compose` command.
 
+```
        $ docker-compose
+```
 
 # Running the App
 
-    Development
-    $ docker-compose up
+  -  Development
+    
+    `$ docker-compose up`
 
-    Run all API Unit Tests
-    $ docker-compose -f testing.yml up
+  -  Run all API Unit Tests
+    
+    `$ docker-compose -f testing.yml up`
 
-    Production
-    $ docker-compose -f production.yml up
+  -  Production
+    
+    `$ docker-compose -f production.yml up`
 
 The site is located on `http://[DOCKER_HOST_IP]/`
 
 Test the API using `curl http://[DOCKER_HOST_IP]/api/v1`.
+You should get a JSON response with `status: "Running"`
 
 # License
 
