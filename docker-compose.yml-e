@@ -3,7 +3,7 @@ app:
   image: nginx
   volumes:
     - ../hawker-hub:/var/www/data
-    - config/nginx/nginx-devel.conf:/etc/nginx/nginx.conf
+    - ./config/nginx/nginx-devel.conf:/etc/nginx/nginx.conf
   ports:
     - "80:80"
   links:
@@ -17,8 +17,8 @@ api1:
   environment:
     ALLOW_OVERRIDE: true
   volumes:
-    - vendor:/vendor
-    - src:/app
+    - ./vendor:/vendor
+    - ./src:/app
   links:
     - db:mysql
 
