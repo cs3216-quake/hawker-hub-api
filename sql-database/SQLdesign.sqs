@@ -55,7 +55,7 @@
             <temporaryOriginalName><![CDATA[postId]]></temporaryOriginalName>
             <uid><![CDATA[80AEFA7E-FC8B-49FC-9CFE-400544FB931B]]></uid>
         </SQLField>
-        <labelWindowIndex><![CDATA[0]]></labelWindowIndex>
+        <labelWindowIndex><![CDATA[4]]></labelWindowIndex>
         <temporaryOriginalName><![CDATA[Comment_1]]></temporaryOriginalName>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
         <uid><![CDATA[55D50C32-DA53-4C53-924A-C6D84BAE653E]]></uid>
@@ -102,7 +102,7 @@
             <temporaryOriginalName><![CDATA[providerAccessToken]]></temporaryOriginalName>
             <uid><![CDATA[030308C7-5ED9-4AEF-A7D9-6E5CF4F71051]]></uid>
         </SQLField>
-        <labelWindowIndex><![CDATA[0]]></labelWindowIndex>
+        <labelWindowIndex><![CDATA[3]]></labelWindowIndex>
         <temporaryOriginalName><![CDATA[Users_1]]></temporaryOriginalName>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
         <uid><![CDATA[606A172D-FA74-49D5-B0B9-6A2235A2A8B9]]></uid>
@@ -115,7 +115,7 @@
             <y>165.00</y>
         </location>
         <size>
-            <width>226.00</width>
+            <width>181.00</width>
             <height>120.00</height>
         </size>
         <zorder>2</zorder>
@@ -168,6 +168,7 @@
             <temporaryOriginalName><![CDATA[id]]></temporaryOriginalName>
             <uid><![CDATA[5C68BE86-BBE4-4E33-B1D8-32B93D7B38DD]]></uid>
         </SQLField>
+        <labelWindowIndex><![CDATA[2]]></labelWindowIndex>
         <temporaryOriginalName><![CDATA[Comments]]></temporaryOriginalName>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
         <uid><![CDATA[9E4EAB22-334B-48DE-97ED-43061429323C]]></uid>
@@ -234,6 +235,7 @@
             <temporaryOriginalName><![CDATA[facebookAccessToken]]></temporaryOriginalName>
             <uid><![CDATA[0C3655B1-60E6-40B8-9260-FE33C6BECC0B]]></uid>
         </SQLField>
+        <labelWindowIndex><![CDATA[1]]></labelWindowIndex>
         <temporaryOriginalName><![CDATA[Users]]></temporaryOriginalName>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
         <uid><![CDATA[B6BD83F7-6D76-4824-A9AF-821199E68016]]></uid>
@@ -470,6 +472,7 @@ c28tYTSGhoY=
 ]]></encodedPrintInfo>
         <autoSizeTablesOption><![CDATA[0]]></autoSizeTablesOption>
         <documentScaleFactor><![CDATA[1]]></documentScaleFactor>
+        <dropTableOption><![CDATA[0]]></dropTableOption>
         <exportDialect><![CDATA[mysql]]></exportDialect>
         <fileversion><![CDATA[3.1]]></fileversion>
         <generator><![CDATA[com.malcolmhardie.sqleditor]]></generator>
@@ -482,9 +485,9 @@ c28tYTSGhoY=
         <snapToGrid><![CDATA[0]]></snapToGrid>
         <SourceSidebarWidth><![CDATA[276.000000]]></SourceSidebarWidth>
         <uid><![CDATA[38CFBD4C-6F93-415F-A8FF-09AF619C3E5A]]></uid>
-        <windowHeight><![CDATA[677.000000]]></windowHeight>
+        <windowHeight><![CDATA[732.000000]]></windowHeight>
         <windowLocationX><![CDATA[29.000000]]></windowLocationX>
-        <windowLocationY><![CDATA[85.000000]]></windowLocationY>
+        <windowLocationY><![CDATA[41.000000]]></windowLocationY>
         <windowScrollOrigin><![CDATA[{14.5, 31}]]></windowScrollOrigin>
         <windowWidth><![CDATA[1251.000000]]></windowWidth>
     </SQLDocumentInfo>

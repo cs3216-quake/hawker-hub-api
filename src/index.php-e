@@ -4,3 +4,5 @@ require_once 'HawkerHub/App.php';
 
 $app = new \HawkerHub\App();
 $app->run();
+
+?>

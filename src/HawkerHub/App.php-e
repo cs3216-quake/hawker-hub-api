@@ -42,6 +42,7 @@ class App {
         $app = $this->app;
         $app->get('/api/v1', function () use ($app) {
             $this->app->render(200, ['Status' => 'Running']);
-        });
+		});
+
     }
 }
