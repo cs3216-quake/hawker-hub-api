@@ -4,7 +4,6 @@ namespace HawkerHub;
 
 use \Slim\Slim;
 use \SlimJson\Middleware;
-
 /**
  * Class App
  *
@@ -17,6 +16,7 @@ class App {
 	 */
 	public function __construct() {
 		$this->app = new Slim();
+		session_start();
 		$this->setupMiddleWare();
 		$this->addDefaultRoutes();
 	}
@@ -35,7 +35,7 @@ class App {
 			'json.status' => true,
 			'json.override_error' => true,
 			'json.override_notfound' => true
-		)));
+			)));
 	}
 
 	private function addDefaultRoutes() {
@@ -48,10 +48,11 @@ class App {
 
 			$app->group('/user', function() use ($app) {
 
-				$userController = new \HawkerHub\Controllers\UserController($app);
-				$allPostVars = $this->app->request->post();
+				$userController = new \HawkerHub\Controllers\UserController();
 
-				$app->post('/register', function() use($allPostVars,$userController) {
+
+				$app->post('/register', function() use($app,$userController) {
+					$allPostVars = $app->request->post();
 					$displayName = $allPostVars['displayName'];
 					$provider = $allPostVars['provider'];
 					$providerUserId = $allPostVars['userId'];
@@ -60,33 +61,51 @@ class App {
 					$userController->register($displayName,$provider,$providerUserId,$providerAccessToken);
 				});
 
-				$app->post('/login', function() use($allPostVars,$userController) {
-					$providerUserId = $allPostVars['userId'];
-					$providerAccessToken = $allPostVars['accessToken'];
-
-					$userController->login($providerUserId,$providerAccessToken);
+				$app->get('/login', function() use($app,$userController) {
+					$userController->login();
 				});
 			});
 
 			$app->group('/item', function() use ($app) {
-				$itemController = new \HawkerHub\Controllers\ItemController($app);
+				$itemController = new \HawkerHub\Controllers\ItemController();
 
 				// Get /api/item{?startAt,limit,orderBy,lat,lng}
-				$app->get('', function() use ($app) {
+				$app->get('', function() use ($app,$itemController) {
+					$allGetVars = $app->request->get();
+					$startAt = @$allGetVars['startAt']? $allGetVars['startAt']: 0;
+					$limit = @$allGetVars['limit']? $allGetVars['limit']: 15;
+
+					if (@$allGetVars['orderBy'] && $allGetVars['orderBy'] == 'location') {
+						//Sort by location
+						$lat = $allGetVars['latitude'];
+						$long = $allGetVars['longtitude'];
+						$itemController->listFoodItemSortedByLocation($startAt,$limit,$lat,$long);
+					} else {
+						//Sort by most recent
+						$itemController->listFoodItemSortedByMostRecent($startAt,$limit);
+					}
 
 				});
 
 				// Post /api/item
-				$app->post('', function() use ($app) {
+				$app->post('', function() use ($app,$itemController) {
+					$allPostVars = $app->request->post();
 
+					$itemName = $allPostVars['itemName'];
+					$photoURL = $allPostVars['photoURL'];
+					$caption = $allPostVars['caption'];
+					$longtitude = $allPostVars['longtitude'];
+					$latitude = $allPostVars['latitude'];
+
+					$itemController->createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude);
 				});
 
 				// Route /api/item/{id}
-				$app->group('/:id', function($id) use ($app) {
+				$app->group('/:id', function($id) use ($app,$itemController) {
 
 					// Get /api/item/{id}
-					$app->get('', function($id) use ($app) {
-
+					$app->get('', function($id) use ($app,$itemController) {
+						$itemController->findByItemId($id);
 					});
 
 					// Route /api/item/{id}/like
