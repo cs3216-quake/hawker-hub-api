@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `Approve` (
   `likeId` int(11) NOT NULL,
   `likeDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `userId` int(11) NOT NULL,
-  `postId` int(11) NOT NULL
+  `itemId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `Comment` (
   `commentId` int(11) NOT NULL,
   `commentDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `userId` int(11) NOT NULL,
-  `postId` int(11) NOT NULL,
+  `itemId` int(11) NOT NULL,
   `message` varchar(255) COLLATE utf8_bin DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -50,13 +50,13 @@ CREATE TABLE IF NOT EXISTS `Comment` (
 CREATE TABLE IF NOT EXISTS `Item` (
   `itemId` int(11) NOT NULL,
   `addedDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `itemName` varchar(255) COLLATE utf8_bin NOT NULL,
+  `itemName` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `photoURL` varchar(255) COLLATE utf8_bin NOT NULL,
-  `caption` varchar(255) COLLATE utf8_bin NOT NULL,
-  `longtitude` decimal(10,0) NOT NULL,
-  `latitude` decimal(10,0) NOT NULL,
+  `caption` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `longtitude` decimal(10,6) NOT NULL,
+  `latitude` decimal(10,6) NOT NULL,
   `userId` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 -- --------------------------------------------------------
 
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS `User` (
 ALTER TABLE `Approve`
   ADD PRIMARY KEY (`likeId`),
   ADD KEY `userId_idxfk` (`userId`),
-  ADD KEY `postId_idxfk` (`postId`);
+  ADD KEY `itemId_idxfk` (`itemId`);
 
 --
 -- Indexes for table `Comment`
@@ -104,7 +104,7 @@ ALTER TABLE `Approve`
 ALTER TABLE `Comment`
   ADD PRIMARY KEY (`commentId`),
   ADD KEY `userId_idxfk_2` (`userId`),
-  ADD KEY `postId_idxfk_1` (`postId`);
+  ADD KEY `itemId_idxfk_1` (`itemId`);
 
 --
 -- Indexes for table `Item`
@@ -166,14 +166,14 @@ ALTER TABLE `User`
 --
 ALTER TABLE `Approve`
   ADD CONSTRAINT `Approve_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `User` (`userId`),
-  ADD CONSTRAINT `Approve_ibfk_2` FOREIGN KEY (`postId`) REFERENCES `Item` (`itemId`);
+  ADD CONSTRAINT `Approve_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `Item` (`itemId`);
 
 --
 -- Constraints for table `Comment`
 --
 ALTER TABLE `Comment`
   ADD CONSTRAINT `Comment_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `User` (`userId`),
-  ADD CONSTRAINT `Comment_ibfk_2` FOREIGN KEY (`postId`) REFERENCES `Item` (`itemId`);
+  ADD CONSTRAINT `Comment_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `Item` (`itemId`);
 
 --
 -- Constraints for table `Item`
