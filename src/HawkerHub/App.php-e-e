@@ -67,6 +67,61 @@ class App {
 					$userController->login($providerUserId,$providerAccessToken);
 				});
 			});
+
+			$app->group('/item', function() use ($app) {
+				$itemController = new \HawkerHub\Controllers\ItemController($app);
+
+				// Get /api/item{?startAt,limit,orderBy,lat,lng}
+				$app->get('', function() use ($app) {
+
+				});
+
+				// Post /api/item
+				$app->post('', function($id) use ($app) {
+
+				});
+
+				// Route /api/item/{id}
+				$app->group('/:id', function($id) use ($app) {
+
+					// Get /api/item/{id}
+					$app->get('', function($id) use ($app) {
+
+					});
+
+					// Route /api/item/{id}/like
+					$app->group('/like', function($id) use ($app) {
+
+						// Get
+						$app->get('', function($id) use ($app) {
+
+						});
+
+						// Post
+						$app->post('', function($id) use ($app) {
+
+						});
+
+					});
+
+					// Route /api/item/{id}/comments
+					$app->group('/comments', function($id) use ($app) {
+
+						// Get
+						$app->get('', function($id) use ($app) {
+
+						});
+						
+						// Post
+						$app->post('', function($id) use ($app) {
+
+						});
+
+					});
+
+				});
+
+			});
 		});
 	}
 }
