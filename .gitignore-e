@@ -1,4 +1,4 @@
-
+*.swp
 composer.phar
 vendor/
 .idea/
