@@ -34,22 +34,21 @@ class UserModel extends \HawkerHub\Models\Model{
 	}
 
 	public static function registerNewUser($displayName, $provider, $providerUserId, $providerAccessToken) {
-		$list = [];
+		try {
 		$db = \Db::getInstance();
-		$req = $db->query('INSERT INTO User (`displayName`, `providerId`, `providerUserId`, `providerAccessToken`) VALUES (:displayName, (SELECT providerId from Provider where providerName = :provider), :providerUserId, $providerAccessToken);');
+		$req = $db->prepare('INSERT INTO User (`displayName`, `providerId`, `providerUserId`, `providerAccessToken`) VALUES (:displayName, (SELECT providerId from Provider where providerName = :provider), :providerUserId, :providerAccessToken);');
 
-		$req->execute(array(
+		$success = $req->execute(array(
 			'displayName' => $displayName,
 			'provider' => $provider,
 			'providerUserId' => $providerUserId,
 			'providerAccessToken' => $providerAccessToken
 			));
-		// we create a list of Post objects from the database results
-		foreach($req->fetchAll() as $user) {
-			$list[] = new UserModel($user['userId'], $user['displayName'], $user['providerId'], $user['providerUserId'], $user['providerAccessToken']);
-		}
 
-		return $list;
+		return $success;
+		} catch (\PDOException $e) {
+			return false;
+		}
 	}
 
 	public static function loginByProviderUserIdAndAccessToken($providerUserId,$providerAccessToken) {
@@ -63,7 +62,7 @@ class UserModel extends \HawkerHub\Models\Model{
 			));
 		$user = $req->fetch();
 		if (!$user) {
-			throw new \PDOException('Login failed.');
+			return false;
 		}
 		return new UserModel($user['userId'], $user['displayName'], $user['providerId'], $user['providerUserId'], $user['providerAccessToken']);
 	}
@@ -77,7 +76,7 @@ class UserModel extends \HawkerHub\Models\Model{
 		$req->execute(array('userId' => $userId));
 		$user = $req->fetch();
 		if (!$user) {
-			return NULL;
+			return false;
 		}
 		return new UserModel($user['userId'], $user['displayName'], $user['providerId'], $user['providerUserId'], $user['providerAccessToken']);
 	}
