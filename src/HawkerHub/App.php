@@ -49,9 +49,10 @@ class App {
 			$app->group('/user', function() use ($app) {
 
 				$userController = new \HawkerHub\Controllers\UserController($app);
-				$allPostVars = $this->app->request->post();
+				
 
-				$app->post('/register', function() use($allPostVars,$userController) {
+				$app->post('/register', function() use($app,$allPostVars,$userController) {
+					$allPostVars = $app->request->post();
 					$displayName = $allPostVars['displayName'];
 					$provider = $allPostVars['provider'];
 					$providerUserId = $allPostVars['userId'];
@@ -60,9 +61,10 @@ class App {
 					$userController->register($displayName,$provider,$providerUserId,$providerAccessToken);
 				});
 
-				$app->post('/login', function() use($allPostVars,$userController) {
-					$providerUserId = $allPostVars['userId'];
-					$providerAccessToken = $allPostVars['accessToken'];
+				$app->get('/login', function() use($app,$allPostVars,$userController) {
+					$allGetVars = $app->request->get();
+					$providerUserId = $allGetVars['userId'];
+					$providerAccessToken = $allGetVars['accessToken'];
 
 					$userController->login($providerUserId,$providerAccessToken);
 				});
