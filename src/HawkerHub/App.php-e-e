@@ -35,7 +35,7 @@ class App {
 			'json.status' => true,
 			'json.override_error' => true,
 			'json.override_notfound' => true
-		)));
+			)));
 	}
 
 	private function addDefaultRoutes() {
@@ -48,10 +48,10 @@ class App {
 
 			$app->group('/user', function() use ($app) {
 
-				$userController = new \HawkerHub\Controllers\UserController($app);
+				$userController = new \HawkerHub\Controllers\UserController();
 				
 
-				$app->post('/register', function() use($app,$allPostVars,$userController) {
+				$app->post('/register', function() use($app,$userController) {
 					$allPostVars = $app->request->post();
 					$displayName = $allPostVars['displayName'];
 					$provider = $allPostVars['provider'];
@@ -61,7 +61,7 @@ class App {
 					$userController->register($displayName,$provider,$providerUserId,$providerAccessToken);
 				});
 
-				$app->get('/login', function() use($app,$allPostVars,$userController) {
+				$app->get('/login', function() use($app,$userController) {
 					$allGetVars = $app->request->get();
 					$providerUserId = $allGetVars['userId'];
 					$providerAccessToken = $allGetVars['accessToken'];
@@ -71,24 +71,37 @@ class App {
 			});
 
 			$app->group('/item', function() use ($app) {
-				$itemController = new \HawkerHub\Controllers\ItemController($app);
+				$itemController = new \HawkerHub\Controllers\ItemController();
 
 				// Get /api/item{?startAt,limit,orderBy,lat,lng}
-				$app->get('', function() use ($app) {
+				$app->get('', function() use ($app,$itemController) {
+					$allGetVars = $app->request->get();
+					$startAt = @$allGetVars['startAt']? $allGetVars['startAt']: 0;
+					$limit = @$allGetVars['limit']? $allGetVars['limit']: 15;
 
+					if (@$allGetVars['orderBy'] && $allGetVars['orderBy'] == 'location') {
+						//Sort by location
+						$lat = $allGetVars['lat'];
+						$long = $allGetVars['long'];
+						$itemController->listFoodItemSortedByLocation($startAt,$limit,$lat,$long);
+					} else {
+						//Sort by most recent
+						$itemController->listFoodItemSortedByMostRecent($startAt,$limit);
+					}
 				});
 
 				// Post /api/item
-				$app->post('', function($id) use ($app) {
-
+				$app->post('', function($id) use ($app,$itemController) {
+					$allPostVars = $app->request->post();
+					
 				});
 
 				// Route /api/item/{id}
-				$app->group('/:id', function($id) use ($app) {
+				$app->group('/:id', function($id) use ($app,$itemController) {
 
 					// Get /api/item/{id}
-					$app->get('', function($id) use ($app) {
-
+					$app->get('', function($id) use ($app,$itemController) {
+						$itemController->findByItemId($id);
 					});
 
 					// Route /api/item/{id}/like

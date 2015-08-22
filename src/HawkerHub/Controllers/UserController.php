@@ -12,8 +12,7 @@ use \HawkerHub\Models\UserModel;
  **/
 class UserController extends \HawkerHub\Controllers\Controller {
 
-	public function __construct($model) {
-		parent::__construct($model);
+	public function __construct() {
 	}
 
 	public function register($displayName, $provider, $providerUserId, $providerAccessToken) {

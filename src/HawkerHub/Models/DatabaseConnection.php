@@ -11,7 +11,7 @@
 
       if (!isset(self::$instance)) {
         $pdo_options[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
-        self::$instance = new PDO('mysql:host='.$MYSQL_HOST.';port='.$MYSQL_PORT.';dbname='.$MYSQL_DATABASE, $MYSQL_USER, $MYSQL_PASSWORD, $pdo_options);
+        self::$instance = new PDO('mysql:host='.$MYSQL_HOST.';port='.$MYSQL_PORT.';charset=utf8;dbname='.$MYSQL_DATABASE, $MYSQL_USER, $MYSQL_PASSWORD, $pdo_options);
       }
       return self::$instance;
     }
