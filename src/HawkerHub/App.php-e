@@ -4,7 +4,6 @@ namespace HawkerHub;
 
 use \Slim\Slim;
 use \SlimJson\Middleware;
-
 /**
  * Class App
  *
@@ -17,6 +16,7 @@ class App {
 	 */
 	public function __construct() {
 		$this->app = new Slim();
+		session_start();
 		$this->setupMiddleWare();
 		$this->addDefaultRoutes();
 	}
@@ -62,11 +62,7 @@ class App {
 				});
 
 				$app->get('/login', function() use($app,$userController) {
-					$allGetVars = $app->request->get();
-					$providerUserId = $allGetVars['userId'];
-					$providerAccessToken = $allGetVars['accessToken'];
-
-					$userController->login($providerUserId,$providerAccessToken);
+					$userController->login();
 				});
 			});
 
@@ -81,19 +77,27 @@ class App {
 
 					if (@$allGetVars['orderBy'] && $allGetVars['orderBy'] == 'location') {
 						//Sort by location
-						$lat = $allGetVars['lat'];
-						$long = $allGetVars['long'];
+						$lat = $allGetVars['latitude'];
+						$long = $allGetVars['longtitude'];
 						$itemController->listFoodItemSortedByLocation($startAt,$limit,$lat,$long);
 					} else {
 						//Sort by most recent
 						$itemController->listFoodItemSortedByMostRecent($startAt,$limit);
 					}
+
 				});
 
 				// Post /api/item
-				$app->post('', function($id) use ($app,$itemController) {
+				$app->post('', function() use ($app,$itemController) {
 					$allPostVars = $app->request->post();
-					
+
+					$itemName = $allPostVars['itemName'];
+					$photoURL = $allPostVars['photoURL'];
+					$caption = $allPostVars['caption'];
+					$longtitude = $allPostVars['longtitude'];
+					$latitude = $allPostVars['latitude'];
+
+					$itemController->createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude);
 				});
 
 				// Route /api/item/{id}

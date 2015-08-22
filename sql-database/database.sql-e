@@ -82,8 +82,7 @@ CREATE TABLE IF NOT EXISTS `User` (
   `displayName` varchar(255) COLLATE utf8_bin NOT NULL,
   `profilePictureURL` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `providerId` int(11) DEFAULT NULL,
-  `providerUserId` varchar(255) COLLATE utf8_bin NOT NULL,
-  `providerAccessToken` varchar(255) COLLATE utf8_bin NOT NULL
+  `providerUserId` varchar(255) COLLATE utf8_bin NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 --
@@ -126,6 +125,7 @@ ALTER TABLE `Provider`
 ALTER TABLE `User`
   ADD PRIMARY KEY (`userId`),
   ADD UNIQUE KEY `displayName` (`displayName`),
+  ADD UNIQUE KEY `providerUserId` (`providerUserId`),
   ADD KEY `providerId_idxfk` (`providerId`);
 
 --
