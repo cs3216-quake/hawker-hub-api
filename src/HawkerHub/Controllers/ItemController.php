@@ -12,17 +12,39 @@ use \HawkerHub\Models\ItemModel;
  **/
 class ItemController extends \HawkerHub\Controllers\Controller {
 
-	public function __construct($model) {
-		parent::__construct($model);
+	public function __construct() {
 	}
 
-	public function register($displayName, $provider, $providerUserId, $providerAccessToken) {
+	public function findByItemId($itemId) {
 		$app = \Slim\Slim::getInstance();
-		$success = UserModel::registerNewUser($displayName, $provider, $providerUserId, $providerAccessToken);
-		if (!$success) { 
-			$app->render(500, ['Status' => 'Registration failed.' ]);
+		$item = ItemModel::findByItemId($itemId);
+		if ($item) {
+			$app->render(200, ['item' => json_encode($item)]);
 		} else {
-			$app->render(200, ['Status' => 'Registration successful.' ]);
+			$app->render(500, ['Status' => 'Item not found.']);
+		}
+	}
+
+	public function listFoodItemSortedByLocation($startAt = 0, $limit = 15, $lat, $long) {
+		$app = \Slim\Slim::getInstance();
+		$distance = 10; //Kilometers
+
+		$item = ItemModel::listFoodItemSortedByLocation($startAt,$limit,$lat,$long,$distance);
+		if ($item) {
+			$app->render(200, ['item' => json_encode($item)]);
+		} else {
+			$app->render(500, ['Status' => 'Item not found.']);
+		}
+	}
+
+	public function listFoodItemSortedByMostRecent($startAt = 0, $limit = 15) {
+		$app = \Slim\Slim::getInstance();
+		
+		$item = ItemModel::listFoodItemSortedByMostRecent($startAt,$limit);
+		if ($item) {
+			$app->render(200, ['item' => json_encode($item)]);
+		} else {
+			$app->render(500, ['Status' => 'No items found.']);
 		}
 	}
 

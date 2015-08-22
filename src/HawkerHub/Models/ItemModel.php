@@ -39,6 +39,47 @@ class ItemModel extends \HawkerHub\Models\Model{
 		return $list;
 	}
 
+	public static function listFoodItemSortedByLocation($startAt,$endAt,$lat,$long,$distance) {
+		$list = [];
+		$db = \Db::getInstance();
+
+		$startAt = intval($startAt);
+		$endAt = intval($endAt);
+
+		$req = $db->prepare('SELECT *, ( 6371 * acos( cos( radians(:lat) ) * cos( radians( latitude ) ) * cos( radians( longtitude ) - radians(:long) ) + sin( radians(:lat) ) * sin( radians( latitude ) ) ) ) AS distance FROM Item HAVING distance < :distance ORDER BY distance LIMIT :startAt, :endAt;');
+
+		$req->bindParam(':lat', $lat, \PDO::PARAM_STR);
+		$req->bindParam(':long', $long, \PDO::PARAM_STR);
+		$req->bindParam(':distance', $distance, \PDO::PARAM_INT);
+		$req->bindParam(':startAt', $startAt, \PDO::PARAM_INT);
+		$req->bindParam(':endAt', $endAt, \PDO::PARAM_INT);
+		
+		$req->execute();
+		foreach($req->fetchAll() as $item) {
+			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$item['userId']);
+		}
+		return $list;
+	}
+
+	public static function listFoodItemSortedByMostRecent($startAt,$endAt) {
+		$list = [];
+		$db = \Db::getInstance();
+
+		$startAt = intval($startAt);
+		$endAt = intval($endAt);
+
+		$req = $db->prepare('SELECT * FROM Item ORDER BY addedDate DESC LIMIT :startAt, :endAt;');
+
+		$req->bindParam(':startAt', $startAt, \PDO::PARAM_INT);
+		$req->bindParam(':endAt', $endAt, \PDO::PARAM_INT);
+
+		$req->execute();
+		foreach($req->fetchAll() as $item) {
+			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$item['userId']);
+		}
+		return $list;
+	}
+
 	public static function findByItemId($itemId) {
 		$db = \Db::getInstance();
       	// we make sure $id is an integer
