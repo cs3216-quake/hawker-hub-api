@@ -77,7 +77,7 @@ class App {
 				});
 
 				// Post /api/item
-				$app->post('', function($id) use ($app) {
+				$app->post('', function() use ($app) {
 
 				});
 
@@ -94,27 +94,33 @@ class App {
 
 						// Get
 						$app->get('', function($id) use ($app) {
-
+							$likeController = new \HawkerHub\Controllers\LikeController($app);
+							$likeController->listLikes($id);
 						});
 
 						// Post
 						$app->post('', function($id) use ($app) {
-
+							$likeController = new \HawkerHub\Controllers\LikeController($app);
+							$likeController->insertLike($id);
 						});
 
 					});
 
-					// Route /api/item/{id}/comments
-					$app->group('/comments', function($id) use ($app) {
-
+					// Route /api/item/{id}/comment
+					$app->group('/comment', function($id) use ($app) {
 						// Get
 						$app->get('', function($id) use ($app) {
-
+							$commentController = new \HawkerHub\Controllers\CommentController($app);
+							$commentController->listComments($id);
 						});
-						
+
 						// Post
 						$app->post('', function($id) use ($app) {
-
+							$commentController = new \HawkerHub\Controllers\CommentController($app);
+							$raw = $app->request->getBody();
+							$data = json_decode($raw, true);
+							$sanitized = htmlspecialchars($data['message'], ENT_QUOTES, 'UTF-8');
+							$commentController->insertComment($id, $sanitized);
 						});
 
 					});
