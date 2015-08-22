@@ -1,4 +1,9 @@
 {
+	"autoload": {
+		"psr-0": {
+			"HawkerHub": "src/HawkerHub/"
+		}
+	},
     "require": {
         "slim/slim": "^2.6",
         "dogancelik/slim-json": "dev-master"

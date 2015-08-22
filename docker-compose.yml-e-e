@@ -21,6 +21,10 @@ api1:
     - ./src:/app
   links:
     - db:mysql
+  environment:
+    MYSQL_DATABASE: hawker-hub
+    MYSQL_USER: root
+    MYSQL_PASSWORD: 83GvYmK1C
 
 db:
   restart: always
