@@ -205,7 +205,7 @@
         <SQLField>
             <name><![CDATA[profilePictureURL]]></name>
             <type><![CDATA[VARCHAR(255)]]></type>
-            <temporaryOriginalName><![CDATA[id]]></temporaryOriginalName>
+            <temporaryOriginalName><![CDATA[profilePictureURL]]></temporaryOriginalName>
             <uid><![CDATA[6536E0A9-02B6-4331-9CEC-2592E5A385CA]]></uid>
         </SQLField>
         <SQLField>
