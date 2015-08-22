@@ -9,7 +9,7 @@ use \SlimJson\Middleware;
  * Class App
  *
  * Main class of the REST API
- * @package HwkerHub
+ * @package HawkerHub
  */
 class App {
 	/**
@@ -40,24 +40,33 @@ class App {
 
 	private function addDefaultRoutes() {
 		$app = $this->app;
+		$app->group('/api', function() use ($app) {
 
-		$app->get('/api/v1', function () use ($app) {
-			$this->app->render(200, ['Status' => 'Running']);
-		});
+			$app->get('/v1', function () use ($app) {
+				$this->app->render(200, ['Status' => 'Running']);
+			});
 
-		$app->post('/api/register', function() {
-			$allPostVars = $this->app->request->post();
-			$displayName = $allPostVars['displayName'];
-			$provider = $allPostVars['provider'];
-			$providerUserId = $allPostVars['userId'];
-			$providerAccessToken = $allPostVars['accessToken'];
+			$app->group('/user', function() use ($app) {
 
-			require_once('HawkerHub/Controllers/RegisterController.php');
-			require_once('HawkerHub/Models/RegisterModel.php');
+				$userController = new \HawkerHub\Controllers\UserController($app);
 
-			$registerModel = new \HawkerHub\Models\RegisterModel();
-			$registerController = new \HawkerHub\Controllers\RegisterController($registerModel);
-			$registerController->register($displayName,$provider,$providerUserId,$providerAccessToken);
+				$app->post('/register', function() use($userController) {
+					$allPostVars = $this->app->request->post();
+					$displayName = $allPostVars['displayName'];
+					$provider = $allPostVars['provider'];
+					$providerUserId = $allPostVars['userId'];
+					$providerAccessToken = $allPostVars['accessToken'];
+					$userController->register($displayName,$provider,$providerUserId,$providerAccessToken);
+				});
+
+				$app->post('/login', function() use($userController) {
+					$allPostVars = $this->app->request->post();
+					$providerUserId = $allPostVars['userId'];
+					$providerAccessToken = $allPostVars['accessToken'];
+
+					$userController->login($providerUserId,$providerAccessToken);
+				});
+			});
 		});
 	}
 }

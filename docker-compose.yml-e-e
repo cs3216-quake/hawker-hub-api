@@ -16,6 +16,9 @@ api1:
     - "80"
   environment:
     ALLOW_OVERRIDE: true
+    MYSQL_DATABASE: hawker-hub
+    MYSQL_USER: root
+    MYSQL_PASSWORD: 83GvYmK1C
   volumes:
     - ./vendor:/vendor
     - ./src:/app
