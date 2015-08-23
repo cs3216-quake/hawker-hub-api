@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "613404531b63c41caa560e60a3599d8d",
+    "hash": "ee62276a0a3ed7cdee0e86686c3a4564",
     "packages": [
         {
             "name": "dogancelik/slim-json",
@@ -49,6 +49,61 @@
                 "view"
             ],
             "time": "2015-05-30 18:21:12"
+        },
+        {
+            "name": "facebook/php-sdk-v4",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/facebook/facebook-php-sdk-v4.git",
+                "reference": "56dfa7727f06a6dfe5f315d4eb5b1d3db3251e93"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/facebook/facebook-php-sdk-v4/zipball/56dfa7727f06a6dfe5f315d4eb5b1d3db3251e93",
+                "reference": "56dfa7727f06a6dfe5f315d4eb5b1d3db3251e93",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "guzzlehttp/guzzle": "~5.0",
+                "mockery/mockery": "~0.8",
+                "phpunit/phpunit": "~4.0"
+            },
+            "suggest": {
+                "guzzlehttp/guzzle": "Allows for implementation of the Guzzle HTTP client"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Facebook\\": "src/Facebook/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Facebook Platform"
+            ],
+            "authors": [
+                {
+                    "name": "Facebook",
+                    "homepage": "https://github.com/facebook/facebook-php-sdk-v4/contributors"
+                }
+            ],
+            "description": "Facebook SDK for PHP",
+            "homepage": "https://github.com/facebook/facebook-php-sdk-v4",
+            "keywords": [
+                "facebook",
+                "sdk"
+            ],
+            "time": "2015-08-06 18:33:24"
         },
         {
             "name": "slim/slim",
@@ -1112,7 +1167,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "dogancelik/slim-json": 20
+        "dogancelik/slim-json": 20,
+        "facebook/php-sdk-v4": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
