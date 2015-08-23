@@ -31,7 +31,9 @@ class App {
 	private $app;
 
 	private function startSession() {
-		session_start();
+		if(!session_id()) {
+		    session_start();
+		}
 	}
 
 	private function setupMiddleWare() {
