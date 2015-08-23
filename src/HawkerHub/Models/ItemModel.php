@@ -39,7 +39,34 @@ class ItemModel extends \HawkerHub\Models\Model{
 		return $list;
 	}
 
-	public static function listFoodItemSortedByLocation($startAt,$endAt,$lat,$long,$distance) {
+	public static function createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude,$userId) {
+		try {
+		$db = \Db::getInstance();
+		$req = $db->prepare('INSERT INTO Item (`itemName`, `photoURL`, `caption`, `longtitude`, `latitude`, `userId`) VALUES (:itemName, :photoURL, :caption, :longtitude, :latitude, :userId);');
+
+		$success = $req->execute(array(
+			'itemName' => $itemName,
+			'photoURL' => $photoURL,
+			'caption' => $caption,
+			'longtitude' => $longtitude,
+			'latitude' => $latitude,
+			'userId' => $userId
+			));
+
+		$id = $db->lastInsertId();
+
+		if ($id > 0 && $success) {
+			return ItemModel::findByItemId($id);
+		}
+
+		return $success;
+		} catch (\PDOException $e) {
+			print $e;
+			return false;
+		}
+	}
+
+	public static function listFoodItemSortedByLocation($startAt,$endAt,$latitude,$longtitude,$distance) {
 		$list = [];
 		$db = \Db::getInstance();
 
@@ -48,12 +75,12 @@ class ItemModel extends \HawkerHub\Models\Model{
 
 		$req = $db->prepare('SELECT *, ( 6371 * acos( cos( radians(:lat) ) * cos( radians( latitude ) ) * cos( radians( longtitude ) - radians(:long) ) + sin( radians(:lat) ) * sin( radians( latitude ) ) ) ) AS distance FROM Item HAVING distance < :distance ORDER BY distance LIMIT :startAt, :endAt;');
 
-		$req->bindParam(':lat', $lat, \PDO::PARAM_STR);
-		$req->bindParam(':long', $long, \PDO::PARAM_STR);
+		$req->bindParam(':lat', $latitude, \PDO::PARAM_STR);
+		$req->bindParam(':long', $longtitude, \PDO::PARAM_STR);
 		$req->bindParam(':distance', $distance, \PDO::PARAM_INT);
 		$req->bindParam(':startAt', $startAt, \PDO::PARAM_INT);
 		$req->bindParam(':endAt', $endAt, \PDO::PARAM_INT);
-		
+
 		$req->execute();
 		foreach($req->fetchAll() as $item) {
 			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$item['userId']);

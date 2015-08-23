@@ -4,7 +4,6 @@ namespace HawkerHub;
 
 use \Slim\Slim;
 use \SlimJson\Middleware;
-
 /**
  * Class App
  *
@@ -17,6 +16,7 @@ class App {
 	 */
 	public function __construct() {
 		$this->app = new Slim();
+		$this->startSession();
 		$this->setupMiddleWare();
 		$this->addDefaultRoutes();
 	}
@@ -29,6 +29,10 @@ class App {
 	}
 
 	private $app;
+
+	private function startSession() {
+		session_start();
+	}
 
 	private function setupMiddleWare() {
 		$this->app->add(new Middleware(array(
@@ -49,24 +53,25 @@ class App {
 			$app->group('/user', function() use ($app) {
 
 				$userController = new \HawkerHub\Controllers\UserController();
-				
 
+				/*
+				Do we need this?
 				$app->post('/register', function() use($app,$userController) {
 					$allPostVars = $app->request->post();
 					$displayName = $allPostVars['displayName'];
 					$provider = $allPostVars['provider'];
 					$providerUserId = $allPostVars['userId'];
-					$providerAccessToken = $allPostVars['accessToken'];
 
-					$userController->register($displayName,$provider,$providerUserId,$providerAccessToken);
+					$userController->register($displayName,$provider,$providerUserId);
 				});
+				*/
 
 				$app->get('/login', function() use($app,$userController) {
-					$allGetVars = $app->request->get();
-					$providerUserId = $allGetVars['userId'];
-					$providerAccessToken = $allGetVars['accessToken'];
+					$userController->login();
+				});
 
-					$userController->login($providerUserId,$providerAccessToken);
+				$app->get('/logout', function() use($app,$userController) {
+					$userController->logout();
 				});
 			});
 
@@ -81,8 +86,8 @@ class App {
 
 					if (@$allGetVars['orderBy'] && $allGetVars['orderBy'] == 'location') {
 						//Sort by location
-						$lat = $allGetVars['lat'];
-						$long = $allGetVars['long'];
+						$lat = $allGetVars['latitude'];
+						$long = $allGetVars['longtitude'];
 						$itemController->listFoodItemSortedByLocation($startAt,$limit,$lat,$long);
 					} else {
 						//Sort by most recent
@@ -91,9 +96,16 @@ class App {
 				});
 
 				// Post /api/item
-				$app->post('', function($id) use ($app,$itemController) {
+				$app->post('', function() use ($app,$itemController) {
 					$allPostVars = $app->request->post();
-					
+
+					$itemName = $allPostVars['itemName'];
+					$photoURL = $allPostVars['photoURL'];
+					$caption = $allPostVars['caption'];
+					$longtitude = $allPostVars['longtitude'];
+					$latitude = $allPostVars['latitude'];
+
+					$itemController->createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude);
 				});
 
 				// Route /api/item/{id}
@@ -109,27 +121,32 @@ class App {
 
 						// Get
 						$app->get('', function($id) use ($app) {
-
+							$likeController = new \HawkerHub\Controllers\LikeController($app);
+							$likeController->listLikes($id);
 						});
 
 						// Post
 						$app->post('', function($id) use ($app) {
-
+							$likeController = new \HawkerHub\Controllers\LikeController($app);
+							$likeController->insertLike($id);
 						});
 
 					});
 
-					// Route /api/item/{id}/comments
-					$app->group('/comments', function($id) use ($app) {
-
+					// Route /api/item/{id}/comment
+					$app->group('/comment', function($id) use ($app) {
 						// Get
 						$app->get('', function($id) use ($app) {
-
+							$commentController = new \HawkerHub\Controllers\CommentController($app);
+							$commentController->listComments($id);
 						});
-						
+
 						// Post
 						$app->post('', function($id) use ($app) {
-
+							$commentController = new \HawkerHub\Controllers\CommentController($app);
+							$allPostVars = $app->request->post();
+							$sanitizedMessage = htmlspecialchars($allPostVars['message'], ENT_QUOTES, 'UTF-8');
+							$commentController->insertComment($id, $sanitizedMessage);
 						});
 
 					});
