@@ -11,7 +11,7 @@ use \HawkerHub\Models\LikeModel;
  * @package HawkerHub
  **/
 class LikeController extends \HawkerHub\Controllers\Controller{
-  
+
   public function __construct() {
 	}
 
@@ -32,6 +32,9 @@ class LikeController extends \HawkerHub\Controllers\Controller{
 
   public function insertLike($itemId){
     $currUserId = $this->getCurrentUserId();
+    if (is_null($currUserId)) {
+      $app->render(401, array("Status" => "User not logged in"));
+    }
     $app = \Slim\Slim::getInstance();
 		$result = LikeModel::addLikeByItem($itemId, $currUserId);
     if($result) {
@@ -42,8 +45,12 @@ class LikeController extends \HawkerHub\Controllers\Controller{
   }
 
   public function getCurrentUserId() {
-    // TODO: Implement proper methdo to check for current user
-    return 1;
+    $_SESSION['userId']
+    if (isset($_SESSION['userId'])) {
+      return $_SESSION['userId'];
+    } else {
+      return null;
+    }
   }
 }
 ?>

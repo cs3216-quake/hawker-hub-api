@@ -95,6 +95,7 @@ class App {
 						//Sort by most recent
 						$itemController->listFoodItemSortedByMostRecent($startAt,$limit);
 					}
+
 				});
 
 				// Post /api/item

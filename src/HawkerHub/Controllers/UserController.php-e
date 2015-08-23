@@ -24,7 +24,7 @@ class UserController extends \HawkerHub\Controllers\Controller {
 	public function register($displayName, $provider, $providerUserId) {
 		$app = \Slim\Slim::getInstance();
 		$success = UserModel::registerNewUser($displayName, $provider, $providerUserId);
-		if (!$success) { 
+		if (!$success) {
 			$app->render(500, ['Status' => 'Registration failed.' ]);
 		} else {
 			$app->render(200, ['Status' => 'Registration successful.' ]);
@@ -123,4 +123,3 @@ class UserController extends \HawkerHub\Controllers\Controller {
 
 
 }
-
