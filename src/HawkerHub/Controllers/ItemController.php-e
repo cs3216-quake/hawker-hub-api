@@ -87,4 +87,3 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 	}
 
 }
-

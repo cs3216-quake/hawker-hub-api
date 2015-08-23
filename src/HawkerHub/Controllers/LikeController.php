@@ -55,4 +55,3 @@ class LikeController extends \HawkerHub\Controllers\Controller{
     }
   }
 }
-?>
