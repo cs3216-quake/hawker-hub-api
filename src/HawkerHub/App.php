@@ -112,7 +112,7 @@ class App {
 				});
 
 				// Route /api/item/{id}
-				$app->group('/:id', function($id) use ($app,$itemController) {
+				$app->group('/:id', function() use ($app,$itemController) {
 
 					// Get /api/item/{id}
 					$app->get('', function($id) use ($app,$itemController) {
@@ -120,7 +120,7 @@ class App {
 					});
 
 					// Route /api/item/{id}/like
-					$app->group('/like', function($id) use ($app) {
+					$app->group('/like', function() use ($app) {
 
 						// Get
 						$app->get('', function($id) use ($app) {
@@ -137,7 +137,7 @@ class App {
 					});
 
 					// Route /api/item/{id}/comment
-					$app->group('/comment', function($id) use ($app) {
+					$app->group('/comment', function() use ($app) {
 						// Get
 						$app->get('', function($id) use ($app) {
 							$commentController = new \HawkerHub\Controllers\CommentController($app);
