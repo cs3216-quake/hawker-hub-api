@@ -17,8 +17,14 @@ require_once('FacebookCredentials.php');
  **/
 class UserController extends \HawkerHub\Controllers\Controller {
 
+	private $fb;
+
 	public function __construct() {
-		
+		$this->fb = new Facebook([
+			'app_id' => FB_APP_ID,
+			'app_secret' => FB_SECRET,
+			'default_graph_version' => 'v2.4',
+			]);
 	}
 
 	public function register($displayName, $provider, $providerUserId) {
@@ -32,73 +38,77 @@ class UserController extends \HawkerHub\Controllers\Controller {
 	}
 
 	public function logout() {
-		$fb = new Facebook([
-			'app_id' => FB_APP_ID,
-			'app_secret' => FB_SECRET,
-			'default_graph_version' => 'v2.4',
-			]);
+		
 		$app = \Slim\Slim::getInstance();
 		if ($this->isLoggedIn()) {
-			$self_url= sprintf('%s://%s%s',
-				empty($_SERVER['HTTPS']) ? 'http' : 'https',
-				$_SERVER['HTTP_HOST'], $_SERVER['SCRIPT_NAME']
-				);
-			$helper = $fb->getRedirectLoginHelper();
-			$logout_url = $helper->getLogoutUrl($_SESSION['fb_access_token'], $self_url);
-		    // Now we destroy the PHP session
-			session_destroy();
-
-		    // If it's desired to kill the session, also delete the session cookie.
-		    // Note: This will destroy the session, and not just the session data!
-			if (ini_get('session.use_cookies')) {
-				$params = session_get_cookie_params();
-				setcookie(session_name(), '', time() - 42000,
-					$params['path'], $params['domain'],
-					$params['secure'], $params['httponly']
-					);
-			}
-
-		    // Redirect the user to the actual facebook logout URL
+			$this->destroySession();
+			$app->render(500, ['Status' => 'Successfully logged out.' ]);
 		} else {
 			$app->render(500, ['Status' => 'Not logged in.' ]);
 		}
 	}
 
+	private function destroySession() {
+		session_destroy();
+
+	    // If it's desired to kill the session, also delete the session cookie.
+	    // Note: This will destroy the session, and not just the session data!
+		if (ini_get('session.use_cookies')) {
+			$params = session_get_cookie_params();
+			setcookie(session_name(), '', time() - 42000,
+				$params['path'], $params['domain'],
+				$params['secure'], $params['httponly']
+				);
+		}
+	}
+
 	public function isLoggedIn() {
-		return !empty($_SESSION['fb_access_token']);
+		if (@$_SESSION['fb_access_token']) {
+			try {
+				$oAuth2Client = $this->fb->getOAuth2Client();
+
+ 				// Get the access token metadata from /debug_token
+				$tokenMetadata = $oAuth2Client->debugToken(@$_SESSION['fb_access_token']);
+				$tokenMetadata->validateAppId(FB_APP_ID);
+				$tokenMetadata->validateExpiration();
+				if (!$tokenMetadata->getIsValid()) {
+					$this->destroySession();
+					return false;
+				}
+			} catch (FacebookSDKException $e) {
+				$this->destroySession();
+				return false;
+			}
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public function login() {
-		$fb = new Facebook([
-			'app_id' => FB_APP_ID,
-			'app_secret' => FB_SECRET,
-			'default_graph_version' => 'v2.4',
-			]);
 		$app = \Slim\Slim::getInstance();
+
 		// verify with Facebook using the Facebook PHP SDK
-		$helper = $fb->getJavaScriptHelper();
 		// If user is not already logged in...
-		if (empty($_SESSION['fb_access_token'])) {
+		if (!$this->isLoggedIn()) {
+			$helper = $this->fb->getJavaScriptHelper();
 			try {
 				$accessToken = $helper->getAccessToken();
 			} catch(FacebookResponseException $e) {
     			// When Graph returns an error
-				echo 'Graph returned an error: ' . $e->getMessage();
-				exit;
+				$app->render(500, ['Status' => 'Login failed. '.$e->getMessage() ]);
+				return;
 			} catch(FacebookSDKException $e) {
     			// When validation fails or other local issues
-				echo 'Facebook SDK returned an error: ' . $e->getMessage();
-				exit;
+				$app->render(500, ['Status' => 'Login failed. '.$e->getMessage() ]);
+				return;
 			}
-
-			if (!isset($accessToken)) {
-				$loginUrl = $helper->getLoginUrl($self_url);
-				echo '<a href="' . $loginUrl . '">Log in with Facebook!</a>';
-				exit;
+			if (!@$accessToken) {
+				$app->render(500, ['Status' => 'Login failed.' ]);
+				return;
 			}
-
   			// The OAuth 2.0 client handler helps us manage access tokens
-			$oAuth2Client = $fb->getOAuth2Client();
+			$oAuth2Client = $this->fb->getOAuth2Client();
 
  			// Get the access token metadata from /debug_token
 			$tokenMetadata = $oAuth2Client->debugToken($accessToken);
@@ -110,16 +120,38 @@ class UserController extends \HawkerHub\Controllers\Controller {
 				try {
 					$accessToken = $oAuth2Client->getLongLivedAccessToken($accessToken);
 				} catch (FacebookSDKException $e) {
-					echo "<p>Error getting long-lived access token: " . $helper->getMessage() . "</p>\n\n";
-					exit;
+					$app->render(500, ['Status' => 'Login failed. '.$e->getMessage() ]);
+					return;
 				}
 			}
 
 			$_SESSION['fb_access_token'] = (string) $accessToken;
+
+			try {
+			  // Returns a `Facebook\FacebookResponse` object
+				$response = $this->fb->get('/me?fields=id,name', $_SESSION['fb_access_token']);
+			} catch(FacebookResponseException $e) {
+				$app->render(500, ['Status' => 'Login failed.' ]);
+				return;
+			} catch(FacebookSDKException $e) {
+				$app->render(500, ['Status' => 'Login failed.' ]);
+				return;
+			}
+
+			$user = $response->getGraphUser();
+
+			if (!UserModel::findByProviderUserId($user['id'])) {
+				//User does not exist, register
+				register($user['name'], 'Facebook', $user['id']);
+			}
+
+			$user = UserModel::findByProviderUserId($user['id']);
+			$_SESSION['userId'] = $user['userId'];
+
+			$app->render(200, ['Status' =>  json_encode($user) ]);
+			return;
+		} else {
+			$app->render(200, ['Status' =>  'Already logged in.' ]);
 		}
-
-
 	}
-
-
 }
