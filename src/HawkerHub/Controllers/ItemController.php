@@ -16,6 +16,8 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 	}
 
 	public function createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude) {
+		$caption = htmlspecialchars($caption, ENT_QUOTES, 'UTF-8');
+		$itemName = htmlspecialchars($itemName, ENT_QUOTES, 'UTF-8');
 		$userController = new \HawkerHub\Controllers\UserController();
 
 		if ($userController->isLoggedIn()) {
