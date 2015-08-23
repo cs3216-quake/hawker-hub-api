@@ -10,9 +10,9 @@ use \HawkerHub\Models\CommentModel;
  * Controller class for all retrieval and creation of food items`
  * @package HawkerHub
  **/
-class CommentController extends \HawkerHub\Controllers\Controller{
-  public function __construct($model) {
-		parent::__construct($model);
+class CommentController extends \HawkerHub\Controllers\Controller {
+
+  public function __construct() {
 	}
 
   public function listComments($itemId) {

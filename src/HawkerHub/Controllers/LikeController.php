@@ -11,8 +11,8 @@ use \HawkerHub\Models\LikeModel;
  * @package HawkerHub
  **/
 class LikeController extends \HawkerHub\Controllers\Controller{
-  public function __construct($model) {
-		parent::__construct($model);
+
+  public function __construct() {
 	}
 
   public function listLikes($itemId) {

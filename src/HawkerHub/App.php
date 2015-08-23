@@ -16,7 +16,7 @@ class App {
 	 */
 	public function __construct() {
 		$this->app = new Slim();
-		session_start();
+		$this->startSession();
 		$this->setupMiddleWare();
 		$this->addDefaultRoutes();
 	}
@@ -29,6 +29,10 @@ class App {
 	}
 
 	private $app;
+
+	private function startSession() {
+		session_start();
+	}
 
 	private function setupMiddleWare() {
 		$this->app->add(new Middleware(array(
@@ -50,19 +54,24 @@ class App {
 
 				$userController = new \HawkerHub\Controllers\UserController();
 
-
+				/*
+				Do we need this?
 				$app->post('/register', function() use($app,$userController) {
 					$allPostVars = $app->request->post();
 					$displayName = $allPostVars['displayName'];
 					$provider = $allPostVars['provider'];
 					$providerUserId = $allPostVars['userId'];
-					$providerAccessToken = $allPostVars['accessToken'];
 
-					$userController->register($displayName,$provider,$providerUserId,$providerAccessToken);
+					$userController->register($displayName,$provider,$providerUserId);
 				});
+				*/
 
 				$app->get('/login', function() use($app,$userController) {
 					$userController->login();
+				});
+
+				$app->get('/logout', function() use($app,$userController) {
+					$userController->logout();
 				});
 			});
 
@@ -136,10 +145,9 @@ class App {
 						// Post
 						$app->post('', function($id) use ($app) {
 							$commentController = new \HawkerHub\Controllers\CommentController($app);
-							$raw = $app->request->getBody();
-							$data = json_decode($raw, true);
-							$sanitized = htmlspecialchars($data['message'], ENT_QUOTES, 'UTF-8');
-							$commentController->insertComment($id, $sanitized);
+							$allPostVars = $app->request->post();
+							$sanitizedMessage = htmlspecialchars($allPostVars['message'], ENT_QUOTES, 'UTF-8');
+							$commentController->insertComment($id, $sanitizedMessage);
 						});
 
 					});

@@ -24,15 +24,15 @@ class CommentModel extends \HawkerHub\Models\Model{
   public function findCommentsByItem($itemId) {
     $result = [];
 		$db = \Db::getInstance();
-    $req = $db->prepare('SELECT * FROM Comment WHERE postId = :postId');
+    $req = $db->prepare('SELECT * FROM Comment WHERE itemId = :itemId');
     // the query was prepared, now we replace :id with our actual $id value
 		$req->execute(array(
-			'postId' => $itemId
+			'itemId' => $itemId
 			));
 
       // we create a result of Like objects from the database results
 		foreach($req->fetchAll() as $comment) {
-      $result[] = new CommentModel($comment['commentId'], $comment['commentDate'], $comment['userId'], $comment['postId'], $comment['message']);
+      $result[] = new CommentModel($comment['commentId'], $comment['commentDate'], $comment['userId'], $comment['itemId'], $comment['message']);
 		}
 
 		return $result;
@@ -40,11 +40,11 @@ class CommentModel extends \HawkerHub\Models\Model{
 
   public function addCommentByItem($itemId, $userId, $message) {
     $db = \Db::getInstance();
-    $req = $db->prepare('INSERT INTO Comment (userId, postId, message) VALUES (:userId, :postId, :message)');
+    $req = $db->prepare('INSERT INTO Comment (userId, itemId, message) VALUES (:userId, :itemId, :message)');
     // the query was prepared, now we replace :id with our actual $id value
 		$success = $req->execute(array(
       'userId' => $userId,
-			'postId' => $itemId,
+			'itemId' => $itemId,
       'message' => $message
 			));
 

@@ -12,68 +12,98 @@ use \Facebook\Facebook;
  * @package HawkerHub
  **/
 class UserController extends \HawkerHub\Controllers\Controller {
-
+	public $fb;
 	public function __construct() {
+		$this->fb = new Facebook([
+			'app_id' => '1466024120391100',
+			'app_secret' => '',
+			'default_graph_version' => 'v2.2',
+			]);
 	}
 
 	public function register($displayName, $provider, $providerUserId) {
 		$app = \Slim\Slim::getInstance();
 		$success = UserModel::registerNewUser($displayName, $provider, $providerUserId);
-		if (!$success) { 
+		if (!$success) {
 			$app->render(500, ['Status' => 'Registration failed.' ]);
 		} else {
 			$app->render(200, ['Status' => 'Registration successful.' ]);
 		}
 	}
 
+	public function logout() {
+		unsetLoginVariables();
+		$app->render(200, ['Status' => 'Logout successful.' ]);
+	}
+
+	public function unsetLoginVariables() {
+		unset($_SESSION['fb_access_token']);
+		unset($_SESSION['userId']);
+	}
+
+	public function isLoggedIn() {
+		return @$_SESSION['userId'];
+	}
+
+	public function checkFacebookAccessTokenValidity() {
+		$this->fb->setAccessToken($_SESSION['fb_access_token']);
+
+		if (($userId = $fb->getUser())) {
+		} else {
+			unsetLoginVariables();
+		}
+	}
+
 	public function login() {
 		$app = \Slim\Slim::getInstance();
 		// verify with Facebook using the Facebook PHP SDK
-		
-		$fb = new Facebook([
-			'app_id' => '1466024120391100',
-			'app_secret' => 'fbpassword',
-			'default_graph_version' => 'v2.2',
-			]);
 
-		$helper = $fb->getJavaScriptHelper();
+		print "A";
+		$this->checkFacebookAccessTokenValidity();
+		if (!@$_SESSION['fb_access_token']) {
+			print "B";
+			$helper = $fb->getJavaScriptHelper();
 
-
-		print $_SESSION['fb_access_token'];
-		try {
-			$accessToken = $helper->getAccessToken();
-		} catch(Facebook\Exceptions\FacebookResponseException $e) {
+			try {
+				$accessToken = $helper->getAccessToken();
+			} catch(Facebook\Exceptions\FacebookResponseException $e) {
   			// When Graph returns an error
-			echo 'Graph returned an error: ' . $e->getMessage();
-			$app->render(500, ['Status' => 'Login failed.' ]);
-			return;
-		} catch(Facebook\Exceptions\FacebookSDKException $e) {
+				$app->render(500, ['Status' => 'Login failed. '. $e->getMessage()  ]);
+				return;
+			} catch(Facebook\Exceptions\FacebookSDKException $e) {
  			 // When validation fails or other local issues
-			echo 'Facebook SDK returned an error: ' . $e->getMessage();
-			$app->render(500, ['Status' => 'Login failed.' ]);
-			return;
+				$app->render(500, ['Status' => 'Login failed. '. $e->getMessage() ]);
+				return;
+			}
+			if (! isset($accessToken)) {
+				$app->render(500, ['Status' => 'Login failed.' ]);
+				return;
+			}
+
+			$_SESSION['fb_access_token'] = (string) $accessToken;
 		}
 
-		if (! isset($accessToken)) {
-			echo 'No cookie set or no OAuth data could be obtained from cookie.';
-			$app->render(500, ['Status' => 'Login failed.' ]);
-			return;
+		print "B";
+
+		try {
+		  // Returns a `Facebook\FacebookResponse` object
+			$response = $fb->get('/me?fields=id,name', '{access-token}');
+		} catch(Facebook\Exceptions\FacebookResponseException $e) {
+			$app->render(500, ['Status' => 'Login failed. '. $e->getMessage()  ]);
+			exit;
+		} catch(Facebook\Exceptions\FacebookSDKException $e) {
+			$app->render(500, ['Status' => 'Login failed. '. $e->getMessage()  ]);
+			exit;
 		}
 
-		var_dump($accessToken->getValue());
-
-		$_SESSION['fb_access_token'] = (string) $accessToken;
-
-
-		//if (UserModel::findByProviderUserId($providerUserId)) {
-			//User exists
-			
-		//} else {
+		$user = $response->getGraphUser();
+		if (!UserModel::findByProviderUserId($user['id'])) {
 			//User does not exist, register
+			register($user['name'], "Facebook", $user['id']);
+		}
 
-		//}
+		$_SESSION['userId'] = UserModel::findByProviderUserId($user['id'])['userId'];
 	}
 
 
 }
-
