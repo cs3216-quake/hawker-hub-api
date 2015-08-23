@@ -9,15 +9,15 @@ class CommentModel extends \HawkerHub\Models\Model{
   public $commentId;
 	public $commentDate;
 	public $userId;
-	public $postId;
+	public $itemId;
   public $message;
 
   // Default constructor
-	public function __construct($commentId, $commentDate, $userId, $postId, $message) {
+	public function __construct($commentId, $commentDate, $userId, $itemId, $message) {
     $this->commentId = $commentId;
   	$this->commentDate = $commentDate;
   	$this->userId = $userId;
-  	$this->postId = $postId;
+  	$this->itemId = $itemId;
     $this->message = $message;
 	}
 

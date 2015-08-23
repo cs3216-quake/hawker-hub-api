@@ -9,14 +9,14 @@ class LikeModel extends \HawkerHub\Models\Model{
   public $likeId;
 	public $likeDate;
 	public $userId;
-	public $postId;
+	public $itemId;
 
   // Default constructor
-	public function __construct($likeId, $likeDate, $userId, $postId) {
+	public function __construct($likeId, $likeDate, $userId, $itemId) {
     $this->likeId = $likeId;
   	$this->likeDate = $likeDate;
   	$this->userId = $userId;
-  	$this->postId = $postId;
+  	$this->itemId = $itemId;
 	}
 
   public function findLikesByItem($itemId) {

@@ -50,6 +50,7 @@ class App {
 				$this->app->render(200, ['Status' => 'Running']);
 			});
 
+			/*
 			$app->group('/user', function() use ($app) {
 
 				$userController = new \HawkerHub\Controllers\UserController();
@@ -64,7 +65,7 @@ class App {
 
 					$userController->register($displayName,$provider,$providerUserId);
 				});
-				*/
+
 
 				$app->get('/login', function() use($app,$userController) {
 					$userController->login();
@@ -74,6 +75,7 @@ class App {
 					$userController->logout();
 				});
 			});
+			*/
 
 			$app->group('/item', function() use ($app) {
 				$itemController = new \HawkerHub\Controllers\ItemController();
@@ -152,6 +154,15 @@ class App {
 
 					});
 
+				});
+
+			});
+
+			$app->group('/image', function() use ($app) {
+
+				$app->get('', function() use ($app) {
+
+					$this->app->render(200, ['status' => 'image api working']);
 				});
 
 			});

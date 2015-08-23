@@ -45,7 +45,6 @@ class CommentController extends \HawkerHub\Controllers\Controller {
   }
 
   public function getCurrentUserId() {
-    $_SESSION['userId']
     if (isset($_SESSION['userId'])) {
       return $_SESSION['userId'];
     } else {
