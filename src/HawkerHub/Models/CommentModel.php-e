@@ -21,9 +21,10 @@ class CommentModel extends \HawkerHub\Models\Model{
     $this->message = $message;
 	}
 
-  public function findCommentsByItem($itemId) {
+  public static function findCommentsByItem($itemId) {
     $result = [];
 		$db = \Db::getInstance();
+    $itemId = intval($itemId);
     $req = $db->prepare('SELECT * FROM Comment WHERE itemId = :itemId');
     // the query was prepared, now we replace :id with our actual $id value
 		$req->execute(array(
@@ -38,8 +39,10 @@ class CommentModel extends \HawkerHub\Models\Model{
 		return $result;
   }
 
-  public function addCommentByItem($itemId, $userId, $message) {
+  public static function addCommentByItem($itemId, $userId, $message) {
     $db = \Db::getInstance();
+    $itemId = intval($itemId);
+    $userId = intval($userId);
     $req = $db->prepare('INSERT INTO Comment (userId, itemId, message) VALUES (:userId, :itemId, :message)');
     // the query was prepared, now we replace :id with our actual $id value
 		$success = $req->execute(array(

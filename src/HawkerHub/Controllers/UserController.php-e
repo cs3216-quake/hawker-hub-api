@@ -42,9 +42,9 @@ class UserController extends \HawkerHub\Controllers\Controller {
 		$app = \Slim\Slim::getInstance();
 		if ($this->isLoggedIn()) {
 			$this->destroySession();
-			$app->render(500, ['Status' => 'Successfully logged out.' ]);
+			$app->render(200, ['Status' => 'Successfully logged out.' ]);
 		} else {
-			$app->render(500, ['Status' => 'Not logged in.' ]);
+			$app->render(401, ['Status' => 'Not logged in.' ]);
 		}
 	}
 
@@ -142,11 +142,11 @@ class UserController extends \HawkerHub\Controllers\Controller {
 
 			if (!UserModel::findByProviderUserId($user['id'])) {
 				//User does not exist, register
-				register($user['name'], 'Facebook', $user['id']);
+				$this->register($user['name'], 'Facebook', $user['id']);
 			}
 
 			$user = UserModel::findByProviderUserId($user['id']);
-			$_SESSION['userId'] = $user['userId'];
+			$_SESSION['userId'] = $user->userId;
 
 			$app->render(200, ['Status' =>  json_encode($user) ]);
 			return;

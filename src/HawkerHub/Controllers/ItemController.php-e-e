@@ -16,12 +16,18 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 	}
 
 	public function createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude) {
-		$app = \Slim\Slim::getInstance();
-		$success = ItemModel::createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude, 1);
-		if (!$success) { 
-			$app->render(500, ['Status' => 'An error occured while adding item.' ]);
+		$userController = new \HawkerHub\Controllers\UserController();
+
+		if ($userController->isLoggedIn()) {
+			$app = \Slim\Slim::getInstance();
+			$success = ItemModel::createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude, $_SESSION['userId']);
+			if (!$success) { 
+				$app->render(500, ['Status' => 'An error occured while adding item.' ]);
+			} else {
+				$app->render(201, ['item' => json_encode($success)]);
+			}
 		} else {
-			$app->render(201, ['item' => json_encode($success)]);
+			$app->render(401, ['Status' => 'Not logged in.' ]);
 		}
 	}
 
@@ -35,7 +41,17 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 		}
 	}
 
-	public function listFoodItemSortedByLocation($startAt = 0, $limit = 15, $latitude, $longtitude) {
+	public function listFoodItem($orderBy = "id", $startAt = 0, $limit = 15, $latitude, $longtitude) {
+		if ($orderBy == 'location' && @$latitude && @$longtitude) {
+			//Sort by location
+			$this->listFoodItemSortedByLocation($startAt,$limit,$latitude,$longtitude);
+		} else {
+			//Sort by most recent
+			$this->listFoodItemSortedByMostRecent($startAt,$limit);
+		}
+	}
+
+	private function listFoodItemSortedByLocation($startAt = 0, $limit = 15, $latitude, $longtitude) {
 		$app = \Slim\Slim::getInstance();
 		$distance = 10; //Kilometers
 
@@ -50,11 +66,11 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 				'collection' => json_encode($item)
 				]);
 		} else {
-			$app->render(500, ['Status' => 'Item not found.']);
+			$app->render(500, ['Status' => 'No items found.']);
 		}
 	}
 
-	public function listFoodItemSortedByMostRecent($startAt = 0, $limit = 15) {
+	private function listFoodItemSortedByMostRecent($startAt = 0, $limit = 15) {
 		$app = \Slim\Slim::getInstance();
 		
 		$item = ItemModel::listFoodItemSortedByMostRecent($startAt,$limit);

@@ -85,17 +85,11 @@ class App {
 					$allGetVars = $app->request->get();
 					$startAt = @$allGetVars['startAt']? $allGetVars['startAt']: 0;
 					$limit = @$allGetVars['limit']? $allGetVars['limit']: 15;
+					$orderBy = @$allGetVars['orderBy']? $allGetVars['orderBy']: "id";
+					$longtitude = @$allGetVars['longtitude']? $allGetVars['longtitude']: 0;
+					$latitude = @$allGetVars['latitude']? $allGetVars['latitude']: 0;
 
-					if (@$allGetVars['orderBy'] && $allGetVars['orderBy'] == 'location') {
-						//Sort by location
-						$lat = $allGetVars['latitude'];
-						$long = $allGetVars['longtitude'];
-						$itemController->listFoodItemSortedByLocation($startAt,$limit,$lat,$long);
-					} else {
-						//Sort by most recent
-						$itemController->listFoodItemSortedByMostRecent($startAt,$limit);
-					}
-
+					$itemController->listFoodItem($orderBy, $startAt, $limit, $latitude, $longtitude);
 				});
 
 				// Post /api/item
@@ -148,8 +142,7 @@ class App {
 						$app->post('', function($id) use ($app) {
 							$commentController = new \HawkerHub\Controllers\CommentController($app);
 							$allPostVars = $app->request->post();
-							$sanitizedMessage = htmlspecialchars($allPostVars['message'], ENT_QUOTES, 'UTF-8');
-							$commentController->insertComment($id, $sanitizedMessage);
+							$commentController->insertComment($id, $allPostVars['message']);
 						});
 
 					});

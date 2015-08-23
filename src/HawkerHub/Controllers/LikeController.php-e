@@ -31,21 +31,23 @@ class LikeController extends \HawkerHub\Controllers\Controller{
   }
 
   public function insertLike($itemId){
-    $currUserId = $this->getCurrentUserId();
-    if (is_null($currUserId)) {
-      $app->render(401, array("Status" => "User not logged in"));
-    }
-    $app = \Slim\Slim::getInstance();
-		$result = LikeModel::addLikeByItem($itemId, $currUserId);
-    if($result) {
-      $app->render(200, array("Status" => "OK"));
+    $userController = new \HawkerHub\Controllers\UserController();
+
+    if ($userController->isLoggedIn()) {
+      $currUserId = $this->getCurrentUserId();
+      $app = \Slim\Slim::getInstance();
+  		$result = LikeModel::addLikeByItem($itemId, $currUserId);
+      if($result) {
+        $app->render(200, array("Status" => "OK"));
+      } else {
+        $app->render(500, array("Status" => "Unable to like item"));
+      }
     } else {
-      $app->render(500, array("Status" => "Unable to like item"));
+      $app->render(401, array("Status" => "User not logged in"));
     }
   }
 
-  public function getCurrentUserId() {
-    $_SESSION['userId']
+  private function getCurrentUserId() {
     if (isset($_SESSION['userId'])) {
       return $_SESSION['userId'];
     } else {

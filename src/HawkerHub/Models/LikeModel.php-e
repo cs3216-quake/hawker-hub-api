@@ -19,9 +19,10 @@ class LikeModel extends \HawkerHub\Models\Model{
   	$this->postId = $postId;
 	}
 
-  public function findLikesByItem($itemId) {
+  public static function findLikesByItem($itemId) {
     $result = [];
 		$db = \Db::getInstance();
+    $itemId = intval($itemId);
     $req = $db->prepare('SELECT * FROM Approve WHERE itemId = :itemId');
     // the query was prepared, now we replace :id with our actual $id value
 		$req->execute(array(
@@ -36,8 +37,10 @@ class LikeModel extends \HawkerHub\Models\Model{
 		return $result;
   }
 
-  public function addLikeByItem($itemId, $userId) {
+  public static function addLikeByItem($itemId, $userId) {
     $db = \Db::getInstance();
+    $itemId = intval($itemId);
+    $userId = intval($userId);
     $req = $db->prepare('INSERT INTO Approve (userId, itemId) VALUES (:userId, :itemId)');
     // the query was prepared, now we replace :id with our actual $id value
 		$success = $req->execute(array(
