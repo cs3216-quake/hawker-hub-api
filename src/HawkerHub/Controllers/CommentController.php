@@ -32,6 +32,9 @@ class CommentController extends \HawkerHub\Controllers\Controller {
 
   public function insertComment($itemId, $message){
     $currUserId = $this->getCurrentUserId();
+    if (is_null($currUserId)) {
+      $app->render(401, array("Status" => "User not logged in"));
+    }
     $app = \Slim\Slim::getInstance();
     $result = CommentModel::addCommentByItem($itemId, $currUserId, $message);
     if($result) {
@@ -42,8 +45,12 @@ class CommentController extends \HawkerHub\Controllers\Controller {
   }
 
   public function getCurrentUserId() {
-    // TODO: Implement proper methdo to check for current user
-    return 1;
+    $_SESSION['userId']
+    if (isset($_SESSION['userId'])) {
+      return $_SESSION['userId'];
+    } else {
+      return null;
+    }
   }
 }
 ?>
