@@ -18,16 +18,7 @@ class CommentController extends \HawkerHub\Controllers\Controller {
   public function listComments($itemId) {
     $app = \Slim\Slim::getInstance();
     $commentData = CommentModel::findCommentsByItem($itemId);
-    $result = array();
-    if (empty($commentData)) {
-      $result['total'] = 0;
-      $result['collection'] = [];
-      $app->render(200, $result);
-    } else {
-      $result['total'] = count($commentData);
-      $result['collection'] = $commentData;
-      $app->render(200, $result);
-    }
+    $app->render(200, $commentData);
   }
 
   public function insertComment($itemId, $message){

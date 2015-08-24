@@ -51,23 +51,7 @@ class UserModel extends \HawkerHub\Models\Model{
 	}
 
 	public static function getItemsFromUserId($userId, $startAt, $limit) {
-		$list = [];
-		$db = \Db::getInstance();
-      	// we make sure $id is an integer
-		$userId = intval($userId);
-		$startAt = intval($startAt);
-		$limit = intval($limit);
-		$req = $db->prepare('SELECT * FROM Item WHERE UserId = :userId order by itemId ASC limit :startAt, :limit');
-      	// the query was prepared, now we replace :id with our actual $id value
-		$req->bindParam(':userId', $userId, \PDO::PARAM_INT);
-		$req->bindParam(':startAt', $startAt, \PDO::PARAM_INT);
-		$req->bindParam(':limit', $limit, \PDO::PARAM_INT);
-		$req->execute();
-
-		foreach($req->fetchAll() as $item) {
-			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$item['userId']);
-		}
-		return $list;
+		return ItemModel::getItemsFromUserId($userId, $startAt, $limit);
 	}
 
 	public static function findByProviderUserId($userId) {
