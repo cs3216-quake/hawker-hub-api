@@ -47,7 +47,7 @@ class App {
     private function addDefaultRoutes() {
         $app = $this->app;
 
-        $app->response->header('Access-Control-Allow-Origin', '*');
+        $app->response->headers->set('Access-Control-Allow-Origin', '*');
         $app->group('/api', function() use ($app) {
 
             $app->group('/v1', function () use ($app) {
@@ -170,7 +170,7 @@ class App {
                     // Route /api/item/photo
                     $app->group('/photo', function() use ($app) {
                         $photoController = new \HawkerHub\Controllers\PhotoController($app);
-        
+
                         // Get /api/item/photo/{photo}
                         // Note: Route maps to uploads/{photo}
                         $app->get('/:link', function($link) use ($app, $photoController) {

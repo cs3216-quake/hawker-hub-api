@@ -1,6 +1,7 @@
 <?php
-const MYSQL_HOST = "192.168.59.103";
-const MYSQL_PORT = 3307;
-const MYSQL_DATABASE = "hawker-hub";
-const MYSQL_USER = "root";
-const MYSQL_PASSWORD = "83GvYmK1C";
+
+define("MYSQL_HOST", getenv('DOMAIN_IP'));
+define("MYSQL_PORT", 3307);
+define("MYSQL_DATABASE", getenv("MYSQL_ENV_MYSQL_DATABASE"));
+define("MYSQL_USER", getenv("MYSQL_ENV_MYSQL_USER"));
+define("MYSQL_PASSWORD", getenv("MYSQL_ENV_MYSQL_PASSWORD"));
