@@ -4,7 +4,7 @@ namespace HawkerHub\Models;
 
 require_once('DatabaseConnection.php');
 
-class PhotoModel extends \HawkerHub\Models\Model{
+class PhotoModel extends \HawkerHub\Models\Model {
 
   public $photoId;
   public $photoUrl;
@@ -17,7 +17,7 @@ class PhotoModel extends \HawkerHub\Models\Model{
     $this->userId = $userId;
   }
 
-  public function saveToFile($owner, $data, $mime, $dir, $route){
+  public function saveToFile($owner, $data, $mime, $dir, $route) {
     $id = md5(uniqid("", true));
     list($mime, $ext) = split("/", $mime); 
     $name = "img-" . $id . '.' . $ext;
@@ -28,5 +28,3 @@ class PhotoModel extends \HawkerHub\Models\Model{
     }
   }
 }
-
-?>

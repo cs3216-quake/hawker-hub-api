@@ -10,10 +10,10 @@ use \HawkerHub\Models\PhotoModel;
  * Controller class for all retrieval and creation of food items`
  * @package HawkerHub
  **/
-class PhotoController extends \HawkerHub\Controllers\Controller{
+class PhotoController extends \HawkerHub\Controllers\Controller {
 
   public function __construct() {
-        }
+  }
 
   public function uploadPhoto($host, $rawFile){
     $userController = new \HawkerHub\Controllers\UserController();
@@ -70,4 +70,3 @@ class PhotoController extends \HawkerHub\Controllers\Controller{
     }
   }
 }
-?>
