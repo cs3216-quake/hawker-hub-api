@@ -37,7 +37,7 @@ class UserController extends \HawkerHub\Controllers\Controller {
 		}
 	}
 
-	public function getUserItems($userId, $startAt, $limit) {
+	public function getUserItems($userId, $startAt = 0, $limit = 15) {
 		$app = \Slim\Slim::getInstance();
 		$items = UserModel::getItemsFromUserId($userId, $startAt, $limit);
 		if (!$items) {
