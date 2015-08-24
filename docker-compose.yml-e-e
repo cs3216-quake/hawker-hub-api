@@ -12,6 +12,7 @@ app:
 api1:
   restart: always
   image: tutum/apache-php
+  command: /setup/init.sh
   ports:
     - "80"
   environment:
@@ -19,6 +20,7 @@ api1:
   volumes:
     - ./vendor:/vendor
     - ./src:/app
+    - ./sql-database:/setup
   links:
     - db:mysql
 
@@ -31,6 +33,6 @@ db:
     - "3307:3306"
   environment:
     MYSQL_DATABASE: hawker-hub
-    MYSQL_USER: root
+    MYSQL_USER: hawker
     MYSQL_PASSWORD: 83GvYmK1C
     MYSQL_ROOT_PASSWORD: 83GvYmK1C
