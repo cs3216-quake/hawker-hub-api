@@ -121,5 +121,3 @@ class ItemModel extends \HawkerHub\Models\Model{
 		return new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$item['userId']);
 	}
 }
-
-?>
