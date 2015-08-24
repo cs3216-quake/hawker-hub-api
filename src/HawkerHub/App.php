@@ -46,8 +46,8 @@ class App {
 
     private function addDefaultRoutes() {
         $app = $this->app;
-
         $app->response->headers->set('Access-Control-Allow-Origin', '*');
+
         $app->group('/api', function() use ($app) {
 
             $app->group('/v1', function () use ($app) {
