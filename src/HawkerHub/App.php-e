@@ -41,7 +41,7 @@ class App {
             'json.status' => false,
             'json.override_error' => true,
             'json.override_notfound' => true
-            )));
+        )));
     }
 
     private function addDefaultRoutes() {
@@ -187,5 +187,6 @@ class App {
                 });
             });
         });
+
     }
 }

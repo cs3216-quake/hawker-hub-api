@@ -24,7 +24,7 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
                 $photoFile = $rawFiles['photoData'];
                 $fileInfo = $this->createFileInfo($photoFile);
                 if (strcmp($info['TYPE'] , 'image') !== 0) {
-                    $app->render(401, ['Status' => 'Inappropriate file format']);
+                    $app->render(415, ['Status' => 'Inappropriate file format']);
                 } else {
                     $result = PhotoModel::saveToFile($currUserId, $photoFile['tmp_name'], $info['MIME-TYPE'], $info['DIRECTORY'], $info['ROUTE']);
                     if(is_null($result)) {
