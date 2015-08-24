@@ -37,6 +37,16 @@ class UserController extends \HawkerHub\Controllers\Controller {
 		}
 	}
 
+	public function getUserItems($userId, $startAt, $limit) {
+		$app = \Slim\Slim::getInstance();
+		$items = UserModel::getItemsFromUserId($userId, $startAt, $limit);
+		if (!$items) {
+			$app->render(500, ['Status' => 'userId does not exist.' ]);
+		} else {
+			$app->render(200, ['data' => $items ]);
+		}
+	}
+
 	public function register($displayName, $provider, $providerUserId) {
 		$app = \Slim\Slim::getInstance();
 		$success = UserModel::registerNewUser($displayName, $provider, $providerUserId);

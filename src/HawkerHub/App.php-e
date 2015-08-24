@@ -11,171 +11,185 @@ use \SlimJson\Middleware;
  * @package HawkerHub
  */
 class App {
-	/**
-	 *  Construct a new App instance
-	 */
-	public function __construct() {
-		$this->app = new Slim();
-		$this->startSession();
-		$this->setupMiddleWare();
-		$this->addDefaultRoutes();
-	}
+    /**
+     *  Construct a new App instance
+     */
+    public function __construct() {
+        $this->app = new Slim();
+        $this->startSession();
+        $this->setupMiddleWare();
+        $this->addDefaultRoutes();
+    }
 
-	/**
-	 *  Run the App instance
-	 */
-	public function run() {
-		$this->app->run();
-	}
+    /**
+     *  Run the App instance
+     */
+    public function run() {
+        $this->app->run();
+    }
 
-	private $app;
+    private $app;
 
-	private function startSession() {
-		if(!session_id()) {
-		    session_start();
-		}
-	}
+    private function startSession() {
+        if(!session_id()) {
+            session_start();
+        }
+    }
 
-	private function setupMiddleWare() {
-		$this->app->add(new Middleware(array(
-			'json.status' => true,
-			'json.override_error' => true,
-			'json.override_notfound' => true
-			)));
-	}
+    private function setupMiddleWare() {
+        $this->app->add(new Middleware(array(
+            'json.status' => true,
+            'json.override_error' => true,
+            'json.override_notfound' => true
+            )));
+    }
 
-	private function addDefaultRoutes() {
-		$app = $this->app;
-		$app->group('/api', function() use ($app) {
+    private function addDefaultRoutes() {
+        $app = $this->app;
 
-			$app->group('/v1', function () use ($app) {
+        $app->header('Access-Control-Allow-Origin', '*');
+        $app->group('/api', function() use ($app) {
 
-				$app->get('', function () use ($app) {
-				    $this->app->render(200, ['Status' => 'Running']);
-				});
+            $app->group('/v1', function () use ($app) {
 
-				$app->group('/users', function() use ($app) {
+                $app->get('', function () use ($app) {
+                    $this->app->render(200, ['Status' => 'Running']);
+                });
 
-					$userController = new \HawkerHub\Controllers\UserController();
+                $app->group('/users', function() use ($app) {
 
-					/*
-					Do we need this?
-					$app->post('/register', function() use($app,$userController) {
-						$allPostVars = $app->request->post();
-						$displayName = $allPostVars['displayName'];
-						$provider = $allPostVars['provider'];
-						$providerUserId = $allPostVars['userId'];
+                    $userController = new \HawkerHub\Controllers\UserController();
 
-						$userController->register($displayName,$provider,$providerUserId);
-					});
-					*/
+                    /*
+                    Do we need this?
+                    $app->post('/register', function() use($app,$userController) {
+                        $allPostVars = $app->request->post();
+                        $displayName = $allPostVars['displayName'];
+                        $provider = $allPostVars['provider'];
+                        $providerUserId = $allPostVars['userId'];
 
-					$app->get('/:userId', function($userId) use($app,$userController) {
-						$userController->getUserInformation($userId);
-					});
+                        $userController->register($displayName,$provider,$providerUserId);
+                    });
+                    */
 
-					$app->get('/login', function() use($app,$userController) {
-						$userController->login();
-					});
+                    $app->group('/:userId', function() use($app,$userController) {
+                        $app->get('', function($userId) use($app,$userController) {
+                            $userController->getUserInformation($userId);
+                        });
 
-					$app->get('/logout', function() use($app,$userController) {
-						$userController->logout();
-					});
-				});
+                        $app->group('/item', function($userId) use($app,$userController) {
+                            $app->get('/recent', function($userId) use($app,$userController) {
+                                $allGetVars = $app->request->get();
+                                $startAt = @$allGetVars['startAt']? $allGetVars['startAt']: 0;
+                                $limit = @$allGetVars['limit']? $allGetVars['limit']: 15;
 
-				$app->group('/item', function() use ($app) {
-					$itemController = new \HawkerHub\Controllers\ItemController();
+                                $itemController->getUserItems($userId,$startAt,$limit);
+                            });
+                        });
+                    });
 
-					// Get /api/item{?startAt,limit,orderBy,lat,lng}
-					$app->get('', function() use ($app,$itemController) {
-						$allGetVars = $app->request->get();
-						$startAt = @$allGetVars['startAt']? $allGetVars['startAt']: 0;
-						$limit = @$allGetVars['limit']? $allGetVars['limit']: 15;
-						$orderBy = @$allGetVars['orderBy']? $allGetVars['orderBy']: "id";
-						$longtitude = @$allGetVars['longtitude']? $allGetVars['longtitude']: 0;
-						$latitude = @$allGetVars['latitude']? $allGetVars['latitude']: 0;
+                    $app->get('/login', function() use($app,$userController) {
+                        $userController->login();
+                    });
 
-						$itemController->listFoodItem($orderBy, $startAt, $limit, $latitude, $longtitude);
-					});
+                    $app->get('/logout', function() use($app,$userController) {
+                        $userController->logout();
+                    });
+                });
 
-					// Post /api/item
-					$app->post('', function() use ($app,$itemController) {
-						$allPostVars = $app->request->post();
+                $app->group('/item', function() use ($app) {
+                    $itemController = new \HawkerHub\Controllers\ItemController();
 
-						$itemName = $allPostVars['itemName'];
-						$photoURL = $allPostVars['photoURL'];
-						$caption = $allPostVars['caption'];
-						$longtitude = $allPostVars['longtitude'];
-						$latitude = $allPostVars['latitude'];
+                    // Get /api/item{?startAt,limit,orderBy,lat,lng}
+                    $app->get('', function() use ($app,$itemController) {
+                        $allGetVars = $app->request->get();
+                        $startAt = @$allGetVars['startAt']? $allGetVars['startAt']: 0;
+                        $limit = @$allGetVars['limit']? $allGetVars['limit']: 15;
+                        $orderBy = @$allGetVars['orderBy']? $allGetVars['orderBy']: "id";
+                        $longtitude = @$allGetVars['longtitude']? $allGetVars['longtitude']: 0;
+                        $latitude = @$allGetVars['latitude']? $allGetVars['latitude']: 0;
 
-						$itemController->createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude);
-					});
+                        $itemController->listFoodItem($orderBy, $startAt, $limit, $latitude, $longtitude);
+                    });
 
-					// Route /api/item/{id}
-					$app->group('/:id', function() use ($app,$itemController) {
+                    // Post /api/item
+                    $app->post('', function() use ($app,$itemController) {
+                        $allPostVars = $app->request->post();
 
-						// Get /api/item/{id}
-						$app->get('', function($id) use ($app,$itemController) {
-							$itemController->findByItemId($id);
-						});
+                        $itemName = $allPostVars['itemName'];
+                        $photoURL = $allPostVars['photoURL'];
+                        $caption = $allPostVars['caption'];
+                        $longtitude = $allPostVars['longtitude'];
+                        $latitude = $allPostVars['latitude'];
 
-						// Route /api/item/{id}/like
-						$app->group('/like', function() use ($app) {
-							// Get
-							$app->get('', function($id) use ($app) {
-								$likeController = new \HawkerHub\Controllers\LikeController($app);
-								$likeController->listLikes($id);
-							});
+                        $itemController->createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude);
+                    });
 
-							// Post
-							$app->post('', function($id) use ($app) {
-								$likeController = new \HawkerHub\Controllers\LikeController($app);
-								$likeController->insertLike($id);
-							});
+                    // Route /api/item/{id}
+                    $app->group('/:id', function() use ($app,$itemController) {
 
-						});
+                        // Get /api/item/{id}
+                        $app->get('', function($id) use ($app,$itemController) {
+                            $itemController->findByItemId($id);
+                        });
 
-						// Route /api/item/{id}/comment
-						$app->group('/comment', function() use ($app) {
-							// Get
-							$app->get('', function($id) use ($app) {
-								$commentController = new \HawkerHub\Controllers\CommentController($app);
-								$commentController->listComments($id);
-							});
+                        // Route /api/item/{id}/like
+                        $app->group('/like', function() use ($app) {
+                            // Get
+                            $app->get('', function($id) use ($app) {
+                                $likeController = new \HawkerHub\Controllers\LikeController($app);
+                                $likeController->listLikes($id);
+                            });
 
-							// Post
-							$app->post('', function($id) use ($app) {
-								$commentController = new \HawkerHub\Controllers\CommentController($app);
-								$allPostVars = $app->request->post();
-								$commentController->insertComment($id, $allPostVars['message']);
-							});
+                            // Post
+                            $app->post('', function($id) use ($app) {
+                                $likeController = new \HawkerHub\Controllers\LikeController($app);
+                                $likeController->insertLike($id);
+                            });
 
-						});
-					});
+                        });
 
-					// Route /api/item/photo
-					$app->group('/photo', function() use ($app) {
-						$photoController = new \HawkerHub\Controllers\PhotoController($app);
-		
-						// Get /api/item/photo/{photo}
-						// Note: Route maps to uploads/{photo}
-						$app->get('/:link', function($link) use ($app, $photoController) {
-							$photoController->downloadPhoto($link);
-						});
+                        // Route /api/item/{id}/comment
+                        $app->group('/comment', function() use ($app) {
+                            // Get
+                            $app->get('', function($id) use ($app) {
+                                $commentController = new \HawkerHub\Controllers\CommentController($app);
+                                $commentController->listComments($id);
+                            });
 
-						// POST /api/item/photo
-						$app->post('', function() use ($app, $photoController) {
-							if (isset($_FILES['photoData'])) {
-								$rawFile = $_FILES['photoData'];
-								$photoController->uploadPhoto($this->app->request->getUrl(), $rawFile);
-							} else {
-								$this->app->render(400, ['status' => 'Missing file to process']);
-							}
-						})->name('photo');
-					});
+                            // Post
+                            $app->post('', function($id) use ($app) {
+                                $commentController = new \HawkerHub\Controllers\CommentController($app);
+                                $allPostVars = $app->request->post();
+                                $commentController->insertComment($id, $allPostVars['message']);
+                            });
 
-				});
-			});
-		});
-	}
+                        });
+                    });
+
+                    // Route /api/item/photo
+                    $app->group('/photo', function() use ($app) {
+                        $photoController = new \HawkerHub\Controllers\PhotoController($app);
+        
+                        // Get /api/item/photo/{photo}
+                        // Note: Route maps to uploads/{photo}
+                        $app->get('/:link', function($link) use ($app, $photoController) {
+                            $photoController->downloadPhoto($link);
+                        });
+
+                        // POST /api/item/photo
+                        $app->post('', function() use ($app, $photoController) {
+                            if (isset($_FILES['photoData'])) {
+                                $rawFile = $_FILES['photoData'];
+                                $photoController->uploadPhoto($this->app->request->getUrl(), $rawFile);
+                            } else {
+                                $this->app->render(400, ['status' => 'Missing file to process']);
+                            }
+                        })->name('photo');
+                    });
+
+                });
+            });
+        });
+    }
 }

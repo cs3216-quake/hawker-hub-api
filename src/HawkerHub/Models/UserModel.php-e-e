@@ -48,6 +48,21 @@ class UserModel extends \HawkerHub\Models\Model{
 		}
 	}
 
+	public static function getItemsFromUserId($userId, $startAt, $limit) {
+		$list = [];
+		$db = \Db::getInstance();
+      	// we make sure $id is an integer
+		$userId = intval($userId);
+		$req = $db->prepare('SELECT * FROM User WHERE UserId = :userId');
+      	// the query was prepared, now we replace :id with our actual $id value
+		$req->execute(array('userId' => $userId));
+		$user = $req->fetch();
+		if (!$user) {
+			return false;
+		}
+		return new UserModel($user['userId'], $user['displayName'], $user['providerId'], $user['providerUserId']);
+	}
+
 	public static function findByProviderUserId($userId) {
 		$db = \Db::getInstance();
 
