@@ -59,14 +59,9 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 
 		$item = ItemModel::listFoodItemSortedByLocation($startAt,$limit,$latitude,$longtitude,$distance);
 		if ($item) {
-			$app->render(200, [
-				'startAt' => $startAt,
-				'limit' => $limit,
-				'orderBy' => 'location',
-				'latitude' => $latitude,
-				'longtitude' => $longtitude,
-				'collection' => $item
-				]);
+			$app->render(200, 
+				$item
+				);
 		} else {
 			$app->render(500, ['Status' => 'No items found.']);
 		}
@@ -77,12 +72,9 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 		
 		$item = ItemModel::listFoodItemSortedByMostRecent($startAt,$limit);
 		if ($item) {
-			$app->render(200, [
-				'startAt' => $startAt,
-				'limit' => $limit,
-				'orderBy' => 'datetime',
-				'collection' => $item
-				]);
+			$app->render(200, 
+				$item
+				);
 		} else {
 			$app->render(500, ['Status' => 'No items found.']);
 		}

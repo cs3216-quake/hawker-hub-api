@@ -38,7 +38,7 @@ class App {
 
     private function setupMiddleWare() {
         $this->app->add(new Middleware(array(
-            'json.status' => true,
+            'json.status' => false,
             'json.override_error' => true,
             'json.override_notfound' => true
             )));
