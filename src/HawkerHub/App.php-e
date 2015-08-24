@@ -47,7 +47,7 @@ class App {
     private function addDefaultRoutes() {
         $app = $this->app;
 
-        $app->header('Access-Control-Allow-Origin', '*');
+        $app->response->header('Access-Control-Allow-Origin', '*');
         $app->group('/api', function() use ($app) {
 
             $app->group('/v1', function () use ($app) {
@@ -77,13 +77,13 @@ class App {
                             $userController->getUserInformation($userId);
                         });
 
-                        $app->group('/item', function($userId) use($app,$userController) {
+                        $app->group('/item', function() use($app,$userController) {
                             $app->get('/recent', function($userId) use($app,$userController) {
                                 $allGetVars = $app->request->get();
                                 $startAt = @$allGetVars['startAt']? $allGetVars['startAt']: 0;
                                 $limit = @$allGetVars['limit']? $allGetVars['limit']: 15;
 
-                                $itemController->getUserItems($userId,$startAt,$limit);
+                                $userController->getUserItems($userId,$startAt,$limit);
                             });
                         });
                     });
