@@ -75,5 +75,3 @@ class UserModel extends \HawkerHub\Models\Model{
 		return new UserModel($user['userId'], $user['displayName'], $user['providerId'], $user['providerUserId']);
 	}
 }
-
-?>

@@ -1,9 +1,9 @@
 /* Seeding provider information */
-INSERT INTO Provider (providerName, providerSite, providerAppId) VALUES ("Local", "localhost", "1");
-INSERT INTO Provider (providerName, providerSite, providerAppId) VALUES ("Facebook", "https://facebook.com", "123");
+INSERT INTO Provider (providerName, providerSite) VALUES ("Local", "localhost");
+INSERT INTO Provider (providerName, providerSite) VALUES ("Facebook", "https://facebook.com");
 
 /* Seeding base user */
-INSERT INTO User (displayName, profilePictureURL, providerId, providerUserId, providerAccessToken) VALUES ("Kiwi", "None", "1", "kiwi", "12345678");
+INSERT INTO User (displayName, profilePictureURL, providerId, providerUserId) VALUES ("Kiwi", "None", "1", "kiwi");
 
 /* Seeding food items */
 INSERT INTO Item (itemName, photoURL, caption, longtitude, latitude, userId) VALUES ("Duck Rice", "https://www.mti.gov.sg/Hawker/Food%20Stall%20Image%20Library/H0088020022.jpg", "偉記 WEI KEE , Blk 6, Tanjong Pagar Plaza, #02-22, Singapore 081006", 103.8426984, 1.2767855, 1);

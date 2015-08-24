@@ -205,7 +205,7 @@
         <SQLField>
             <name><![CDATA[profilePictureURL]]></name>
             <type><![CDATA[VARCHAR(255)]]></type>
-            <temporaryOriginalName><![CDATA[id]]></temporaryOriginalName>
+            <temporaryOriginalName><![CDATA[profilePictureURL]]></temporaryOriginalName>
             <uid><![CDATA[6536E0A9-02B6-4331-9CEC-2592E5A385CA]]></uid>
         </SQLField>
         <SQLField>
@@ -224,10 +224,10 @@
         </SQLField>
         <SQLField>
             <name><![CDATA[providerUserId]]></name>
-            <type><![CDATA[VARCHAR(255)]]></type>
+            <type><![CDATA[INT]]></type>
             <temporaryOriginalName><![CDATA[facebookId]]></temporaryOriginalName>
             <uid><![CDATA[7A289E2E-8385-47A2-83EF-7305848D2B75]]></uid>
-            <unique><![CDATA[0]]></unique>
+            <unique><![CDATA[1]]></unique>
         </SQLField>
         <SQLField>
             <name><![CDATA[providerAccessToken]]></name>

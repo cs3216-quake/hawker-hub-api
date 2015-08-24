@@ -8,8 +8,10 @@ $dbname   = "hawker-hub";
 
 $con = new mysqli($host, $user, $password, $dbname, $port, $socket)
 	or die ('Could not connect to the database server' . mysqli_connect_error());
+mysqli_set_charset($con,'utf8');
 echo "Building SQL Database from 'database.sql'";
-run_sql_file($con,"database.sql");
+print_r(run_sql_file($con,"database.sql"));
+print_r(run_sql_file($con,"seed.sql"));
 
 function run_sql_file($con,$location){
 	$commands = file_get_contents($location);
@@ -24,11 +26,14 @@ function run_sql_file($con,$location){
 	}
 
 	$commands = explode(";", $commands);
-
 	$total = $success = 0;
 	foreach($commands as $command){
 		if(trim($command)){
-			$success += (mysqli_query($con,$command)==false ? 0 : 1);
+			if (mysqli_query($con,$command)) {
+				$success++;
+			} else {
+				echo mysqli_error($con);
+			}
 			$total += 1;
 		}
 	}
@@ -43,4 +48,3 @@ function startsWith($haystack, $needle){
 	$length = strlen($needle);
 	return (substr($haystack, 0, $length) === $needle);
 }
-

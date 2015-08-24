@@ -51,5 +51,3 @@ class LikeModel extends \HawkerHub\Models\Model{
       return $success;
   }
 }
-
-?>
