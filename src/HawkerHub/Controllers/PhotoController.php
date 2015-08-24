@@ -18,7 +18,7 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
     public function uploadPhoto($host, $rawFiles){
         $userController = new \HawkerHub\Controllers\UserController();
         $app = \Slim\Slim::getInstance();
-        if ($userController->isLoggedIn() || true) {
+        if ($userController->isLoggedIn()) {
             $currUserId = $this->getCurrentUserId();
             if ($this->isFileValid($rawFiles['photoData'])) {
                 $photoFile = $rawFiles['photoData'];
