@@ -1,12 +1,12 @@
 <?php
-$host     = "192.168.59.103";
+$host     = getenv('DOMAIN_IP');
 $port     = 3307;
 $socket   = "";
-$user     = "root";
-$password = "83GvYmK1C";
-$dbname   = "hawker-hub";
+$user 		= getenv('MYSQL_ENV_MYSQL_USER');
+$password = getenv('MYSQL_ENV_MYSQL_PASSWORD');
+$dbname   = getenv('MYSQL_ENV_MYSQL_DATABASE');
 
-$con = new mysqli($host, $user, $password, $dbname, $port, $socket)
+$con = new mysqli($host, $user, $password, $dbname, $port)
 	or die ('Could not connect to the database server' . mysqli_connect_error());
 mysqli_set_charset($con,'utf8');
 echo "Building SQL Database from 'database.sql'";
