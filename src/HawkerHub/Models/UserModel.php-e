@@ -2,6 +2,8 @@
 
 namespace HawkerHub\Models;
 
+use \HawkerHub\Models\UserModel;
+
 require_once('DatabaseConnection.php');
 
 class UserModel extends \HawkerHub\Models\Model{
@@ -53,14 +55,19 @@ class UserModel extends \HawkerHub\Models\Model{
 		$db = \Db::getInstance();
       	// we make sure $id is an integer
 		$userId = intval($userId);
-		$req = $db->prepare('SELECT * FROM User WHERE UserId = :userId');
+		$startAt = intval($startAt);
+		$limit = intval($limit);
+		$req = $db->prepare('SELECT * FROM Item WHERE UserId = :userId order by itemId ASC limit :startAt, :limit');
       	// the query was prepared, now we replace :id with our actual $id value
-		$req->execute(array('userId' => $userId));
-		$user = $req->fetch();
-		if (!$user) {
-			return false;
+		$req->bindParam(':userId', $userId, \PDO::PARAM_INT);
+		$req->bindParam(':startAt', $startAt, \PDO::PARAM_INT);
+		$req->bindParam(':limit', $limit, \PDO::PARAM_INT);
+		$req->execute();
+
+		foreach($req->fetchAll() as $item) {
+			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$item['userId']);
 		}
-		return new UserModel($user['userId'], $user['displayName'], $user['providerId'], $user['providerUserId']);
+		return $list;
 	}
 
 	public static function findByProviderUserId($userId) {
