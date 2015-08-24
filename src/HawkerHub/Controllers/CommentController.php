@@ -55,7 +55,3 @@ class CommentController extends \HawkerHub\Controllers\Controller {
     }
   }
 }
-<<<<<<< HEAD
-?>
-=======
->>>>>>> e6b847b27ea357b9178ba8c5861ddf0de535dbdf

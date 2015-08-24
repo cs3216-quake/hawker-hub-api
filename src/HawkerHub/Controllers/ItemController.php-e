@@ -26,7 +26,7 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 			if (!$success) { 
 				$app->render(500, ['Status' => 'An error occured while adding item.' ]);
 			} else {
-				$app->render(201, ['item' => json_encode($success)]);
+				$app->render(201, ['item' => $success]);
 			}
 		} else {
 			$app->render(401, ['Status' => 'Not logged in.' ]);
@@ -37,7 +37,7 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 		$app = \Slim\Slim::getInstance();
 		$item = ItemModel::findByItemId($itemId);
 		if ($item) {
-			$app->render(200, ['item' => json_encode($item)]);
+			$app->render(200, ['item' => $item]);
 		} else {
 			$app->render(500, ['Status' => 'Item not found.']);
 		}
@@ -65,7 +65,7 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 				'orderBy' => 'location',
 				'latitude' => $latitude,
 				'longtitude' => $longtitude,
-				'collection' => json_encode($item)
+				'collection' => $item
 				]);
 		} else {
 			$app->render(500, ['Status' => 'No items found.']);
@@ -81,7 +81,7 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 				'startAt' => $startAt,
 				'limit' => $limit,
 				'orderBy' => 'datetime',
-				'collection' => json_encode($item)
+				'collection' => $item
 				]);
 		} else {
 			$app->render(500, ['Status' => 'No items found.']);

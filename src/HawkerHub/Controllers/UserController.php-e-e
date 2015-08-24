@@ -27,6 +27,16 @@ class UserController extends \HawkerHub\Controllers\Controller {
 			]);
 	}
 
+	public function getUserInformation($userId) {
+		$app = \Slim\Slim::getInstance();
+		$user = UserModel::findByUserId($userId);
+		if (!$user) {
+			$app->render(500, ['Status' => 'userId does not exist.' ]);
+		} else {
+			$app->render(200, ['data' => $user ]);
+		}
+	}
+
 	public function register($displayName, $provider, $providerUserId) {
 		$app = \Slim\Slim::getInstance();
 		$success = UserModel::registerNewUser($displayName, $provider, $providerUserId);
@@ -45,20 +55,6 @@ class UserController extends \HawkerHub\Controllers\Controller {
 			$app->render(200, ['Status' => 'Successfully logged out.' ]);
 		} else {
 			$app->render(401, ['Status' => 'Not logged in.' ]);
-		}
-	}
-
-	private function destroySession() {
-		session_destroy();
-
-	    // If it's desired to kill the session, also delete the session cookie.
-	    // Note: This will destroy the session, and not just the session data!
-		if (ini_get('session.use_cookies')) {
-			$params = session_get_cookie_params();
-			setcookie(session_name(), '', time() - 42000,
-				$params['path'], $params['domain'],
-				$params['secure'], $params['httponly']
-				);
 		}
 	}
 
@@ -148,10 +144,24 @@ class UserController extends \HawkerHub\Controllers\Controller {
 			$user = UserModel::findByProviderUserId($user['id']);
 			$_SESSION['userId'] = $user->userId;
 
-			$app->render(200, ['Status' =>  json_encode($user) ]);
+			$app->render(200, ['Status' =>  $user ]);
 			return;
 		} else {
 			$app->render(200, ['Status' =>  'Already logged in.' ]);
+		}
+	}
+
+	private function destroySession() {
+		session_destroy();
+
+	    // If it's desired to kill the session, also delete the session cookie.
+	    // Note: This will destroy the session, and not just the session data!
+		if (ini_get('session.use_cookies')) {
+			$params = session_get_cookie_params();
+			setcookie(session_name(), '', time() - 42000,
+				$params['path'], $params['domain'],
+				$params['secure'], $params['httponly']
+				);
 		}
 	}
 }

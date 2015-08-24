@@ -50,7 +50,11 @@ class App {
 
 			$app->group('/v1', function () use ($app) {
 
-				$app->group('/user', function() use ($app) {
+				$app->get('', function () use ($app) {
+				    $this->app->render(200, ['Status' => 'Running']);
+				});
+
+				$app->group('/users', function() use ($app) {
 
 					$userController = new \HawkerHub\Controllers\UserController();
 
@@ -65,6 +69,10 @@ class App {
 						$userController->register($displayName,$provider,$providerUserId);
 					});
 					*/
+
+					$app->get('/:userId', function($userId) use($app,$userController) {
+						$userController->getUserInformation($userId);
+					});
 
 					$app->get('/login', function() use($app,$userController) {
 						$userController->login();
@@ -150,7 +158,7 @@ class App {
 						$photoController = new \HawkerHub\Controllers\PhotoController($app);
 		
 						// Get /api/item/photo/{photo}
-        	                                // Note: Route maps to uploads/{photo}
+						// Note: Route maps to uploads/{photo}
 						$app->get('/:link', function($link) use ($app, $photoController) {
 							$photoController->downloadPhoto($link);
 						});

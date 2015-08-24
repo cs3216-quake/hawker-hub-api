@@ -10,7 +10,7 @@ use \HawkerHub\Models\LikeModel;
  * Controller class for all retrieval and creation of food items`
  * @package HawkerHub
  **/
-class LikeController extends \HawkerHub\Controllers\Controller{
+class LikeController extends \HawkerHub\Controllers\Controller {
 
   public function __construct() {
 	}
