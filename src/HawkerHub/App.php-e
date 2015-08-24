@@ -25,7 +25,7 @@ class App {
      *  Run the App instance
      */
     public function run() {
-        $this->app->run();
+      $this->app->run();
     }
 
     private $app;
@@ -179,12 +179,8 @@ class App {
 
                         // POST /api/item/photo
                         $app->post('', function() use ($app, $photoController) {
-                            if (isset($_FILES['photoData'])) {
-                                $rawFile = $_FILES['photoData'];
-                                $photoController->uploadPhoto($this->app->request->getUrl(), $rawFile);
-                            } else {
-                                $this->app->render(400, ['status' => 'Missing file to process']);
-                            }
+                            $rawFiles = $_FILES;
+                            $photoController->uploadPhoto($this->app->request->getUrl(), $rawFiles);
                         })->name('photo');
                     });
 
