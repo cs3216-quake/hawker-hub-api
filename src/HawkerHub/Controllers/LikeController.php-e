@@ -18,16 +18,7 @@ class LikeController extends \HawkerHub\Controllers\Controller {
   public function listLikes($itemId) {
     $app = \Slim\Slim::getInstance();
 		$likeData = LikeModel::findLikesByItem($itemId);
-    $result = array();
-    if (empty($likeData)) {
-      $result['total'] = 0;
-      $result['collection'] = [];
-      $app->render(200, $result);
-    } else {
-      $result['total'] = count($likeData);
-      $result['collection'] = $likeData;
-      $app->render(200, $result);
-    }
+    $app->render(200, $likeData);
   }
 
   public function insertLike($itemId){

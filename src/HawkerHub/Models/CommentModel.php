@@ -2,22 +2,22 @@
 
 namespace HawkerHub\Models;
 
+use \HawkerHub\Models\UserModel;
+
 require_once('DatabaseConnection.php');
 
 class CommentModel extends \HawkerHub\Models\Model{
 
-  public $commentId;
   public $commentDate;
   public $userId;
-  public $postId;
+  public $user;
   public $message;
 
   // Default constructor
-  public function __construct($commentId, $commentDate, $userId, $postId, $message) {
-    $this->commentId = $commentId;
+  public function __construct($commentDate, $userId, $user, $message) {
     $this->commentDate = $commentDate;
     $this->userId = $userId;
-    $this->postId = $postId;
+    $this->user = $user;
     $this->message = $message;
   }
 
@@ -33,7 +33,10 @@ class CommentModel extends \HawkerHub\Models\Model{
 
       // we create a result of Like objects from the database results
     foreach($req->fetchAll() as $comment) {
-      $result[] = new CommentModel($comment['commentId'], $comment['commentDate'], $comment['userId'], $comment['itemId'], $comment['message']);
+        $userId = $comment['userId'];
+
+        $user = UserModel::findByUserId($userId);
+        $result[] = new CommentModel($comment['commentDate'], $comment['userId'], $user, $comment['message']);
     }
 
     return $result;

@@ -2,6 +2,10 @@
 
 namespace HawkerHub\Models;
 
+use \HawkerHub\Models\UserModel;
+use \HawkerHub\Models\LikeModel;
+use \HawkerHub\Models\CommentModel;
+
 require_once('DatabaseConnection.php');
 
 class ItemModel extends \HawkerHub\Models\Model{
@@ -13,9 +17,11 @@ class ItemModel extends \HawkerHub\Models\Model{
 	public $caption;
 	public $longtitude;
 	public $latitude;
-	public $userId;
+	public $user;
+	public $comments;
+	public $likes;
 
-	public function __construct($itemId,$addedDate,$itemName,$photoURL,$caption,$longtitude,$latitude,$userId) {
+	public function __construct($itemId,$addedDate,$itemName,$photoURL,$caption,$longtitude,$latitude,$user,$comments, $likes) {
 		$this->itemId = $itemId;
 		$this->addedDate = $addedDate;
 		$this->itemName = $itemName;
@@ -23,7 +29,9 @@ class ItemModel extends \HawkerHub\Models\Model{
 		$this->caption = $caption;
 		$this->longtitude = $longtitude;
 		$this->latitude = $latitude;
-		$this->userId = $userId;
+		$this->user = $user;
+		$this->comments = $comments;
+		$this->likes = $likes;
 	}
 
 	public static function all() {
@@ -33,7 +41,14 @@ class ItemModel extends \HawkerHub\Models\Model{
 
       // we create a list of Post objects from the database results
 		foreach($req->fetchAll() as $item) {
-			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$item['userId']);
+			$userId = $item['userId'];
+			$itemId = $item['itemId'];
+
+			$user = UserModel::findByUserId($userId);
+			$comments = CommentModel::findCommentsByItem($itemId);
+			$likes = LikeModel::findLikesByItem($itemId);
+
+			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$user,$comments,$likes);
 		}
 
 		return $list;
@@ -41,25 +56,24 @@ class ItemModel extends \HawkerHub\Models\Model{
 
 	public static function createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude,$userId) {
 		try {
-		$db = \Db::getInstance();
-		$req = $db->prepare('INSERT INTO Item (`itemName`, `photoURL`, `caption`, `longtitude`, `latitude`, `userId`) VALUES (:itemName, :photoURL, :caption, :longtitude, :latitude, :userId);');
+			$db = \Db::getInstance();
+			$req = $db->prepare('INSERT INTO Item (`itemName`, `photoURL`, `caption`, `longtitude`, `latitude`, `userId`) VALUES (:itemName, :photoURL, :caption, :longtitude, :latitude, :userId);');
 
-		$success = $req->execute(array(
-			'itemName' => $itemName,
-			'photoURL' => $photoURL,
-			'caption' => $caption,
-			'longtitude' => $longtitude,
-			'latitude' => $latitude,
-			'userId' => $userId
-			));
+			$success = $req->execute(array(
+				'itemName' => $itemName,
+				'photoURL' => $photoURL,
+				'caption' => $caption,
+				'longtitude' => $longtitude,
+				'latitude' => $latitude,
+				'userId' => $userId
+				));
 
-		$id = $db->lastInsertId();
+			$id = $db->lastInsertId();
 
-		if ($id > 0 && $success) {
-			return ItemModel::findByItemId($id);
-		}
-
-		return $success;
+			if ($id > 0 && $success) {
+				return ItemModel::findByItemId($id);
+			}
+			return $success;
 		} catch (\PDOException $e) {
 			print $e;
 			return false;
@@ -83,7 +97,14 @@ class ItemModel extends \HawkerHub\Models\Model{
 
 		$req->execute();
 		foreach($req->fetchAll() as $item) {
-			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$item['userId']);
+			$userId = $item['userId'];
+			$itemId = $item['itemId'];
+
+			$user = UserModel::findByUserId($userId);
+			$comments = CommentModel::findCommentsByItem($itemId);
+			$likes = LikeModel::findLikesByItem($itemId);
+
+			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$user,$comments,$likes);
 		}
 		return $list;
 	}
@@ -102,7 +123,41 @@ class ItemModel extends \HawkerHub\Models\Model{
 
 		$req->execute();
 		foreach($req->fetchAll() as $item) {
-			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$item['userId']);
+			$userId = $item['userId'];
+			$itemId = $item['itemId'];
+
+			$user = UserModel::findByUserId($userId);
+			$comments = CommentModel::findCommentsByItem($itemId);
+			$likes = LikeModel::findLikesByItem($itemId);
+
+			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$user,$comments,$likes);
+		}
+		return $list;
+	}
+
+	public static function getItemsFromUserId($userId, $startAt, $limit) {
+		$list = [];
+		$db = \Db::getInstance();
+      	// we make sure $id is an integer
+		$userId = intval($userId);
+		$startAt = intval($startAt);
+		$limit = intval($limit);
+		$req = $db->prepare('SELECT * FROM Item WHERE UserId = :userId order by itemId ASC limit :startAt, :limit');
+      	// the query was prepared, now we replace :id with our actual $id value
+		$req->bindParam(':userId', $userId, \PDO::PARAM_INT);
+		$req->bindParam(':startAt', $startAt, \PDO::PARAM_INT);
+		$req->bindParam(':limit', $limit, \PDO::PARAM_INT);
+		$req->execute();
+
+		foreach($req->fetchAll() as $item) {
+			$userId = $item['userId'];
+			$itemId = $item['itemId'];
+
+			$user = UserModel::findByUserId($userId);
+			$comments = CommentModel::findCommentsByItem($itemId);
+			$likes = LikeModel::findLikesByItem($itemId);
+
+			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$user,$comments,$likes);
 		}
 		return $list;
 	}
@@ -118,6 +173,13 @@ class ItemModel extends \HawkerHub\Models\Model{
 		if (!$item) {
 			return false;
 		}
-		return new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$item['userId']);
+		$userId = $item['userId'];
+		$itemId = $item['itemId'];
+
+		$user = UserModel::findByUserId($userId);
+		$comments = CommentModel::findCommentsByItem($itemId);
+		$likes = LikeModel::findLikesByItem($itemId);
+
+		return new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$user,$comments,$likes);
 	}
 }
