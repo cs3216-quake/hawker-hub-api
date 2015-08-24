@@ -33,7 +33,7 @@ class UserController extends \HawkerHub\Controllers\Controller {
 		if (!$user) {
 			$app->render(500, ['Status' => 'userId does not exist.' ]);
 		} else {
-			$app->render(200, ['data' => $user ]);
+			$app->render(200, (array) $user );
 		}
 	}
 
@@ -43,7 +43,7 @@ class UserController extends \HawkerHub\Controllers\Controller {
 		if (!$items) {
 			$app->render(500, ['Status' => 'userId does not exist.' ]);
 		} else {
-			$app->render(200, ['data' => $items ]);
+			$app->render(200, $items);
 		}
 	}
 
@@ -154,7 +154,7 @@ class UserController extends \HawkerHub\Controllers\Controller {
 			$user = UserModel::findByProviderUserId($user['id']);
 			$_SESSION['userId'] = $user->userId;
 
-			$app->render(200, ['Status' =>  $user ]);
+			$app->render(200, (array) $user);
 			return;
 		} else {
 			$app->render(200, ['Status' =>  'Already logged in.' ]);
@@ -168,10 +168,13 @@ class UserController extends \HawkerHub\Controllers\Controller {
 	    // Note: This will destroy the session, and not just the session data!
 		if (ini_get('session.use_cookies')) {
 			$params = session_get_cookie_params();
-			setcookie(session_name(), '', time() - 42000,
+			setcookie(
+				session_name(),
+				'',
+				time() - 42000,
 				$params['path'], $params['domain'],
 				$params['secure'], $params['httponly']
-				);
+			);
 		}
 	}
 }
