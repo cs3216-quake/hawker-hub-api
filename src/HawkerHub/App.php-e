@@ -85,17 +85,11 @@ class App {
 					$allGetVars = $app->request->get();
 					$startAt = @$allGetVars['startAt']? $allGetVars['startAt']: 0;
 					$limit = @$allGetVars['limit']? $allGetVars['limit']: 15;
+					$orderBy = @$allGetVars['orderBy']? $allGetVars['orderBy']: "id";
+					$longtitude = @$allGetVars['longtitude']? $allGetVars['longtitude']: 0;
+					$latitude = @$allGetVars['latitude']? $allGetVars['latitude']: 0;
 
-					if (@$allGetVars['orderBy'] && $allGetVars['orderBy'] == 'location') {
-						//Sort by location
-						$lat = $allGetVars['latitude'];
-						$long = $allGetVars['longtitude'];
-						$itemController->listFoodItemSortedByLocation($startAt,$limit,$lat,$long);
-					} else {
-						//Sort by most recent
-						$itemController->listFoodItemSortedByMostRecent($startAt,$limit);
-					}
-
+					$itemController->listFoodItem($orderBy, $startAt, $limit, $latitude, $longtitude);
 				});
 
 				// Post /api/item
@@ -112,7 +106,7 @@ class App {
 				});
 
 				// Route /api/item/{id}
-				$app->group('/:id', function($id) use ($app,$itemController) {
+				$app->group('/:id', function() use ($app,$itemController) {
 
 					// Get /api/item/{id}
 					$app->get('', function($id) use ($app,$itemController) {
@@ -120,7 +114,7 @@ class App {
 					});
 
 					// Route /api/item/{id}/like
-					$app->group('/like', function($id) use ($app) {
+					$app->group('/like', function() use ($app) {
 
 						// Get
 						$app->get('', function($id) use ($app) {
@@ -137,7 +131,7 @@ class App {
 					});
 
 					// Route /api/item/{id}/comment
-					$app->group('/comment', function($id) use ($app) {
+					$app->group('/comment', function() use ($app) {
 						// Get
 						$app->get('', function($id) use ($app) {
 							$commentController = new \HawkerHub\Controllers\CommentController($app);
@@ -148,8 +142,7 @@ class App {
 						$app->post('', function($id) use ($app) {
 							$commentController = new \HawkerHub\Controllers\CommentController($app);
 							$allPostVars = $app->request->post();
-							$sanitizedMessage = htmlspecialchars($allPostVars['message'], ENT_QUOTES, 'UTF-8');
-							$commentController->insertComment($id, $sanitizedMessage);
+							$commentController->insertComment($id, $allPostVars['message']);
 						});
 
 					});
