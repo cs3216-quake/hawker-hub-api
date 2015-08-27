@@ -24,6 +24,7 @@ class UserController extends \HawkerHub\Controllers\Controller {
 			'app_id' => FB_APP_ID,
 			'app_secret' => FB_SECRET,
 			'default_graph_version' => 'v2.4',
+			'cookie' => true
 			]);
 	}
 
@@ -58,7 +59,7 @@ class UserController extends \HawkerHub\Controllers\Controller {
 	}
 
 	public function logout() {
-		
+
 		$app = \Slim\Slim::getInstance();
 		if ($this->isLoggedIn()) {
 			$this->destroySession();
@@ -92,6 +93,12 @@ class UserController extends \HawkerHub\Controllers\Controller {
 	}
 
 	public function login() {
+		$this->fb = new Facebook([
+			'app_id' => FB_APP_ID,
+			'app_secret' => FB_SECRET,
+			'default_graph_version' => 'v2.4',
+			'cookie' => true
+			]);
 		$app = \Slim\Slim::getInstance();
 
 		// verify with Facebook using the Facebook PHP SDK
@@ -110,9 +117,10 @@ class UserController extends \HawkerHub\Controllers\Controller {
 				return;
 			}
 			if (!@$accessToken) {
-				$app->render(500, ['Status' => 'Login failed.' ]);
+				$app->render(500, ['Status' => 'Login failed', 'sess' => $_SESSION['fb_access_token']]);
 				return;
 			}
+
   			// The OAuth 2.0 client handler helps us manage access tokens
 			$oAuth2Client = $this->fb->getOAuth2Client();
 
@@ -120,7 +128,6 @@ class UserController extends \HawkerHub\Controllers\Controller {
 			$tokenMetadata = $oAuth2Client->debugToken($accessToken);
 			$tokenMetadata->validateAppId(FB_APP_ID);
 			$tokenMetadata->validateExpiration();
-
 			if (!$accessToken->isLongLived()) {
     			// Exchanges a short-lived access token for a long-lived one
 				try {

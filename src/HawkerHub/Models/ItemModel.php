@@ -135,6 +135,49 @@ class ItemModel extends \HawkerHub\Models\Model{
 		return $list;
 	}
 
+	public static function listFoodItemByKeyword($orderBy, $startAt, $endAt, $keyword) {
+		$list = [];
+		$db = \Db::getInstance();
+
+		$find = '%'.$keyword.'%';
+		$startAt = intval($startAt);
+		$endAt = intval($endAt);
+
+		$sort = '';
+		switch($orderBy) {
+			case 'recent':
+			$sort = 'addedDate DESC';
+			break;
+
+			case 'id':
+			$sort = 'itemId ASC';
+			break;
+
+			default:
+			$sort = 'itemId ASC';
+			break;
+		}
+
+		$req = $db->prepare("SELECT * FROM Item WHERE itemName LIKE :keyword OR caption LIKE :keyword ORDER BY $sort LIMIT :startAt, :endAt");
+
+		$req->bindParam(':keyword', $find );
+		$req->bindParam(':startAt', $startAt, \PDO::PARAM_INT);
+		$req->bindParam(':endAt', $endAt, \PDO::PARAM_INT);
+
+		$req->execute();
+		foreach($req->fetchAll() as $item) {
+			$userId = $item['userId'];
+			$itemId = $item['itemId'];
+
+			$user = UserModel::findByUserId($userId);
+			$comments = CommentModel::findCommentsByItem($itemId);
+			$likes = LikeModel::findLikesByItem($itemId);
+
+			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$user,$comments,$likes);
+		}
+		return $list;
+	}
+
 	public static function getItemsFromUserId($userId, $startAt, $limit) {
 		$list = [];
 		$db = \Db::getInstance();

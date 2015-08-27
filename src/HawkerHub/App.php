@@ -109,7 +109,7 @@ class App {
                         $longtitude = @$allGetVars['longtitude']? $allGetVars['longtitude']: 0;
                         $latitude = @$allGetVars['latitude']? $allGetVars['latitude']: 0;
 
-                        $itemController->listFoodItem($orderBy, $startAt, $limit, $latitude, $longtitude);
+                        $itemController->listFoodItem($orderBy, $startAt, $limit, $latitude, $longtitude, '');
                     });
 
                     // Post /api/item
@@ -123,6 +123,19 @@ class App {
                         $latitude = $allPostVars['latitude'];
 
                         $itemController->createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude);
+                    });
+
+                    // Route /api/v1/item/search{?keyword=<keyword>}
+                    $app->group('/search', function() use ($app, $itemController) {
+                        // GET
+                        $app->get('', function() use ($app, $itemController) {
+                            $allGetVars = $app->request->get();
+                            $keyword = @$allGetVars['keyword']? $allGetVars['keyword']:'';
+                            $startAt = @$allGetVars['startAt']? $allGetVars['startAt']: 0;
+                            $limit = @$allGetVars['limit']? $allGetVars['limit']: 15;
+                            $orderBy = @$allGetVars['orderBy']? $allGetVars['orderBy']: "id";
+                            $itemController->listFoodItem($orderBy, $startAt, $limit, 0.0, 0.0, $keyword);
+                        });
                     });
 
                     // Route /api/item/{id}

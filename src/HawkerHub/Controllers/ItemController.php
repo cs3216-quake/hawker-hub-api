@@ -24,7 +24,7 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 		if ($userController->isLoggedIn()) {
 			$app = \Slim\Slim::getInstance();
 			$success = ItemModel::createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude, $_SESSION['userId']);
-			if (!$success) { 
+			if (!$success) {
 				$app->render(500, ['Status' => 'An error occured while adding item.' ]);
 			} else {
 				$app->render(201, (array) $success);
@@ -44,13 +44,26 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 		}
 	}
 
-	public function listFoodItem($orderBy = "id", $startAt = 0, $limit = 15, $latitude, $longtitude) {
-		if ($orderBy == 'location' && @$latitude && @$longtitude) {
+	public function listFoodItem($orderBy = "id", $startAt = 0, $limit = 15, $latitude, $longtitude, $keyword = '') {
+		if (!empty($keyword)) {
+			// Search by keyword
+			$this->searchFoodItemByKeyword($orderBy, $startAt, $limit, $keyword);
+		}else if ($orderBy == 'location' && @$latitude && @$longtitude) {
 			//Sort by location
 			$this->listFoodItemSortedByLocation($startAt,$limit,$latitude,$longtitude);
 		} else {
 			//Sort by most recent
 			$this->listFoodItemSortedByMostRecent($startAt,$limit);
+		}
+	}
+
+	private function searchFoodItemByKeyword($orderBy, $startAt, $limit, $keyword) {
+		$app = \Slim\Slim::getInstance();
+		$item = ItemModel::listFoodItemByKeyword($orderBy, $startAt, $limit, $keyword);
+		if ($item) {
+			$app->render(200, $item);
+		} else {
+			$app->render(500, ['Status' => 'No items found.']);
 		}
 	}
 
@@ -68,7 +81,7 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 
 	private function listFoodItemSortedByMostRecent($startAt = 0, $limit = 15) {
 		$app = \Slim\Slim::getInstance();
-		
+
 		$item = ItemModel::listFoodItemSortedByMostRecent($startAt,$limit);
 		if ($item) {
 			$app->render(200, $item);
