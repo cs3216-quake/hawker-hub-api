@@ -9,14 +9,12 @@ require_once('DatabaseConnection.php');
 class CommentModel extends \HawkerHub\Models\Model{
 
   public $commentDate;
-  public $userId;
   public $user;
   public $message;
 
   // Default constructor
-  public function __construct($commentDate, $userId, $user, $message) {
+  public function __construct($commentDate, $user, $message) {
     $this->commentDate = $commentDate;
-    $this->userId = $userId;
     $this->user = $user;
     $this->message = $message;
   }
@@ -29,14 +27,14 @@ class CommentModel extends \HawkerHub\Models\Model{
     // the query was prepared, now we replace :id with our actual $id value
     $req->execute(array(
      'itemId' => $itemId
-    ));    
+    ));
 
       // we create a result of Like objects from the database results
     foreach($req->fetchAll() as $comment) {
         $userId = $comment['userId'];
 
         $user = UserModel::findByUserId($userId);
-        $result[] = new CommentModel($comment['commentDate'], $comment['userId'], $user, $comment['message']);
+        $result[] = new CommentModel($comment['commentDate'], $user, $comment['message']);
     }
 
     return $result;
