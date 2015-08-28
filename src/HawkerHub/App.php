@@ -72,6 +72,14 @@ class App {
                     });
                     */
 
+                    $app->get('/login', function() use($app,$userController) {
+                        $userController->login();
+                    });
+
+                    $app->get('/logout', function() use($app,$userController) {
+                        $userController->logout();
+                    });
+
                     $app->group('/:userId', function() use($app,$userController) {
                         $app->get('', function($userId) use($app,$userController) {
                             $userController->getUserInformation($userId);
@@ -86,14 +94,6 @@ class App {
                                 $userController->getUserItems($userId,$startAt,$limit);
                             });
                         });
-                    });
-
-                    $app->get('/login', function() use($app,$userController) {
-                        $userController->login();
-                    });
-
-                    $app->get('/logout', function() use($app,$userController) {
-                        $userController->logout();
                     });
                 });
 
