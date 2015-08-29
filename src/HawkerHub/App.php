@@ -146,6 +146,10 @@ class App {
                             $itemController->findByItemId($id);
                         });
 
+                        $app->delete('', function($id) use ($app,$itemController) {
+                            $itemController->deleteItem($id);
+                        });
+
                         // Route /api/item/{id}/like
                         $app->group('/like', function() use ($app) {
                             // Get
@@ -158,6 +162,12 @@ class App {
                             $app->post('', function($id) use ($app) {
                                 $likeController = new \HawkerHub\Controllers\LikeController($app);
                                 $likeController->insertLike($id);
+                            });
+
+                            // Delete
+                            $app->delete('', function($id) use ($app) {
+                                $likeController = new \HawkerHub\Controllers\LikeController($app);
+                                $likeController->deleteLike($id);
                             });
 
                         });
@@ -175,6 +185,12 @@ class App {
                                 $commentController = new \HawkerHub\Controllers\CommentController($app);
                                 $allPostVars = $app->request->post();
                                 $commentController->insertComment($id, $allPostVars['message']);
+                            });
+
+                            // Delete
+                            $app->delete('/:commentId', function($id, $commentId) use ($app) {
+                                $commentController = new \HawkerHub\Controllers\CommentController($app);
+                                $commentController->deleteComment($id,$commentId);
                             });
 
                         });

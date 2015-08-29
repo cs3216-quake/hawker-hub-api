@@ -17,6 +17,25 @@ class LikeModel extends \HawkerHub\Models\Model {
   	$this->user = $user;
 	}
 
+  public static function deleteLike($itemId, $userId) {
+    try {
+      $db = \Db::getInstance();
+
+      $itemId = intval($itemId);
+      $userId = intval($userId);
+      
+      $req = $db->prepare('DELETE FROM Approve where itemId = :itemId and userId = :userId;');
+
+      $success = $req->execute(array(
+        'itemId' => $itemId,
+        'userId' => $userId
+        ));
+      return $req->rowCount();
+    } catch (\PDOException $e) {
+      return false;
+    }
+  }
+
   public static function findLikesByItem($itemId) {
     $result = [];
 	$db = \Db::getInstance();
@@ -39,16 +58,20 @@ class LikeModel extends \HawkerHub\Models\Model {
   }
 
   public static function addLikeByItem($itemId, $userId) {
-	  $db = \Db::getInstance();
-	  $itemId = intval($itemId);
-	  $userId = intval($userId);
-	  $req = $db->prepare('INSERT INTO Approve (userId, itemId) VALUES (:userId, :itemId)');
-	  // the query was prepared, now we replace :id with our actual $id value
-	  $success = $req->execute(array(
-		  	'userId' => $userId,
-			'itemId' => $itemId
-		));
+    try {
+  	  $db = \Db::getInstance();
+  	  $itemId = intval($itemId);
+  	  $userId = intval($userId);
+  	  $req = $db->prepare('INSERT INTO Approve (userId, itemId) VALUES (:userId, :itemId)');
+  	  // the query was prepared, now we replace :id with our actual $id value
+  	  $success = $req->execute(array(
+  		  	'userId' => $userId,
+  			'itemId' => $itemId
+  		));
 
       return $success;
+    } catch (\PDOException $e) {
+      return false;
+    }
   }
 }

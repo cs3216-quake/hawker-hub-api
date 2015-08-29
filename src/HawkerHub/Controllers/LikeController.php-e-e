@@ -15,6 +15,22 @@ class LikeController extends \HawkerHub\Controllers\Controller {
     public function __construct() {
     }
 
+    public function deleteLike($itemId) {
+        $app = \Slim\Slim::getInstance();
+        $userController = new \HawkerHub\Controllers\UserController();
+
+        if ($userController->isLoggedIn()) {
+            $success = LikeModel::deleteLike($itemId, $_SESSION['userId']);
+            if (!$success) {
+                $app->render(500, ['Status' => 'An error occured while removing like from item.' ]);
+            } else {
+                $app->render(200);
+            }
+        } else {
+            $app->render(401, ['Status' => 'Not logged in.' ]);
+        }
+    }
+
     public function listLikes($itemId) {
         $app = \Slim\Slim::getInstance();
         $likeData = LikeModel::findLikesByItem($itemId);

@@ -96,6 +96,8 @@ ALTER TABLE `Approve`
   ADD KEY `userId_idxfk` (`userId`),
   ADD KEY `itemId_idxfk` (`itemId`);
 
+ALTER TABLE `Approve` ADD UNIQUE( `userId`, `itemId`);
+
 --
 -- Indexes for table `Comment`
 --

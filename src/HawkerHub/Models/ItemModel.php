@@ -75,7 +75,25 @@ class ItemModel extends \HawkerHub\Models\Model{
 			}
 			return $success;
 		} catch (\PDOException $e) {
-			print $e;
+			return false;
+		}
+	}
+
+	public static function deleteItem($itemId, $userId) {
+		try {
+			$db = \Db::getInstance();
+
+      		$itemId = intval($itemId);
+     		$userId = intval($userId);
+
+			$req = $db->prepare('DELETE FROM Item where itemId = :itemId and userId = :userId;');
+
+			$success = $req->execute(array(
+				'itemId' => $itemId,
+				'userId' => $userId
+				));
+			return $req->rowCount();
+		} catch (\PDOException $e) {
 			return false;
 		}
 	}
