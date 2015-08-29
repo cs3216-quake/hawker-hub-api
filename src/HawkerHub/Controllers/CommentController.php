@@ -25,6 +25,22 @@ class CommentController extends \HawkerHub\Controllers\Controller {
         }
     }
 
+    public function deleteComment($itemId,$commentId) {
+        $app = \Slim\Slim::getInstance();
+        $userController = new \HawkerHub\Controllers\UserController();
+
+        if ($userController->isLoggedIn()) {
+            $success = CommentModel::deleteComment($itemId, $commentId, $_SESSION['userId']);
+            if (!$success) {
+                $app->render(500, ['Status' => 'An error occured while deleting item.' ]);
+            } else {
+                $app->render(200);
+            }
+        } else {
+            $app->render(401, ['Status' => 'Not logged in.' ]);
+        }
+    }
+
     public function insertComment($itemId, $message){
         $message = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
         $userController = new \HawkerHub\Controllers\UserController();
