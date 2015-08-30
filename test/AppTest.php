@@ -54,5 +54,3 @@ class AppTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('200', $this->response->status());
 		
 	}
-
-}

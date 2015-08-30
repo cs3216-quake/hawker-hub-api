@@ -27,4 +27,3 @@ class PhotoModel extends \HawkerHub\Models\Model {
       return null;
     }
   }
-}
