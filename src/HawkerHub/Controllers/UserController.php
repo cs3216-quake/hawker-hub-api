@@ -6,6 +6,7 @@ use \HawkerHub\Models\UserModel;
 use \Facebook\Facebook;
 use \Facebook\Exceptions\FacebookResponseException;
 use \Facebook\Exceptions\FacebookSDKException;
+use \Facebook\SignedRequest;
 
 require_once('FacebookCredentials.php');
 
@@ -26,6 +27,25 @@ class UserController extends \HawkerHub\Controllers\Controller {
 			'default_graph_version' => 'v2.4',
 			'cookie' => true
 			]);
+	}
+
+	public function deauthorizeFacebooks($signed_request) {
+		$app = \Slim\Slim::getInstance();
+		try {
+			$signedRequest = new SignedRequest($this->fb->getApp(),$signed_request);
+			// Get the user ID
+			$providerUserId = $signedRequest->getUserId();
+			$success = UserModel::deleteUserWithProviderUserId($providerUserId);
+			if ($success<1) {
+				$app->render(500, ['Status' => 'An error occured.' ] );
+				return;
+			}
+
+			$app->render(204);
+
+		} catch (\Exception $e) {
+			$app->render(500, ['Status' => 'An error occured.' ] );
+		}
 	}
 
 	public function getUserInformation($userId) {
@@ -93,12 +113,6 @@ class UserController extends \HawkerHub\Controllers\Controller {
 	}
 
 	public function login() {
-		$this->fb = new Facebook([
-			'app_id' => FB_APP_ID,
-			'app_secret' => FB_SECRET,
-			'default_graph_version' => 'v2.4',
-			'cookie' => true
-			]);
 		$app = \Slim\Slim::getInstance();
 
 		// verify with Facebook using the Facebook PHP SDK

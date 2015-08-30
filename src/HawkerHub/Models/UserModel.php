@@ -33,6 +33,22 @@ class UserModel extends \HawkerHub\Models\Model{
 		return $list;
 	}
 
+	public static function deleteUserWithProviderUserId($providerUserId) {
+	    try {
+	      $db = \Db::getInstance();
+	      $providerUserId = intval($providerUserId);
+
+	      $req = $db->prepare('DELETE FROM User where providerUserId = :providerUserId;');
+
+	      $success = $req->execute(array(
+	        'providerUserId' => $providerUserId
+	        ));
+	      return $req->rowCount();
+	    } catch (\PDOException $e) {
+	      return false;
+	    }
+	}
+
 	public static function registerNewUser($displayName, $provider, $providerUserId) {
 		try {
 		$db = \Db::getInstance();
