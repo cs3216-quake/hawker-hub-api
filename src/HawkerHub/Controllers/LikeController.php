@@ -24,7 +24,7 @@ class LikeController extends \HawkerHub\Controllers\Controller {
             if (!$success) {
                 $app->render(500, ['Status' => 'An error occured while removing like from item.' ]);
             } else {
-                $app->render(200);
+                $app->render(204);
             }
         } else {
             $app->render(401, ['Status' => 'Not logged in.' ]);
@@ -44,10 +44,10 @@ class LikeController extends \HawkerHub\Controllers\Controller {
 
     public function insertLike($itemId){
         $userController = new \HawkerHub\Controllers\UserController();
-
+        $app = \Slim\Slim::getInstance();
+        
         if ($userController->isLoggedIn()) {
-            $currUserId = $this->getCurrentUserId();
-            $app = \Slim\Slim::getInstance();
+            $currUserId = $this->getCurrentUserId();    
             $result = LikeModel::addLikeByItem($itemId, $currUserId);
             if($result) {
                 $app->render(200, array("Status" => "OK"));

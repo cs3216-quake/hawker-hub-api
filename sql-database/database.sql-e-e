@@ -81,7 +81,8 @@ CREATE TABLE IF NOT EXISTS `User` (
   `displayName` varchar(255) COLLATE utf8_bin NOT NULL,
   `profilePictureURL` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `providerId` int(11) DEFAULT NULL,
-  `providerUserId` varchar(255) COLLATE utf8_bin NOT NULL
+  `providerUserId` varchar(255) COLLATE utf8_bin NOT NULL,
+  `publicProfile` boolean COLLATE utf8_bin DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 --
@@ -166,24 +167,24 @@ ALTER TABLE `User`
 -- Constraints for table `Approve`
 --
 ALTER TABLE `Approve`
-  ADD CONSTRAINT `Approve_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `User` (`userId`),
-  ADD CONSTRAINT `Approve_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `Item` (`itemId`);
+  ADD CONSTRAINT `Approve_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `User` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `Approve_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `Item` (`itemId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `Comment`
 --
 ALTER TABLE `Comment`
-  ADD CONSTRAINT `Comment_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `User` (`userId`),
-  ADD CONSTRAINT `Comment_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `Item` (`itemId`);
+  ADD CONSTRAINT `Comment_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `User` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `Comment_ibfk_2` FOREIGN KEY (`itemId`) REFERENCES `Item` (`itemId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `Item`
 --
 ALTER TABLE `Item`
-  ADD CONSTRAINT `Item_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `User` (`userId`);
+  ADD CONSTRAINT `Item_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `User` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `User`
 --
 ALTER TABLE `User`
-  ADD CONSTRAINT `User_ibfk_1` FOREIGN KEY (`providerId`) REFERENCES `Provider` (`providerId`);
+  ADD CONSTRAINT `User_ibfk_1` FOREIGN KEY (`providerId`) REFERENCES `Provider` (`providerId`) ON DELETE CASCADE ON UPDATE CASCADE;

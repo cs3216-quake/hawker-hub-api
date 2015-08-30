@@ -43,7 +43,7 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 			if (!$success) {
 				$app->render(500, ['Status' => 'An error occured while deleting item.' ]);
 			} else {
-				$app->render(200);
+				$app->render(204);
 			}
 		} else {
 			$app->render(401, ['Status' => 'Not logged in.' ]);

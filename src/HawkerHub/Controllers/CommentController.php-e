@@ -34,7 +34,7 @@ class CommentController extends \HawkerHub\Controllers\Controller {
             if (!$success) {
                 $app->render(500, ['Status' => 'An error occured while deleting item.' ]);
             } else {
-                $app->render(200);
+                $app->render(204);
             }
         } else {
             $app->render(401, ['Status' => 'Not logged in.' ]);
@@ -42,12 +42,12 @@ class CommentController extends \HawkerHub\Controllers\Controller {
     }
 
     public function insertComment($itemId, $message){
+        $app = \Slim\Slim::getInstance();
         $message = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
         $userController = new \HawkerHub\Controllers\UserController();
 
         if ($userController->isLoggedIn()) {
             $currUserId = $this->getCurrentUserId();
-            $app = \Slim\Slim::getInstance();
             $result = CommentModel::addCommentByItem($itemId, $currUserId, $message);
             if($result) {
                 $app->render(200, array("Status" => "OK"));

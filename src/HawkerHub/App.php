@@ -72,6 +72,12 @@ class App {
                     });
                     */
 
+                    $app->post('/deauthorize', function() use($app,$userController) {
+                        $allPostVars = $app->request->post();
+                        $signed_request = $allPostVars['signed_request'];
+                        $userController->deauthorizeFacebooks($signed_request);
+                    });
+
                     $app->get('/login', function() use($app,$userController) {
                         $userController->login();
                     });
