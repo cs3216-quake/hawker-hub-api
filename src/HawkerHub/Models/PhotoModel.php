@@ -19,7 +19,7 @@ class PhotoModel extends \HawkerHub\Models\Model {
 
   public function saveToFile($owner, $data, $mime, $dir, $route) {
     $id = md5(uniqid("", true));
-    list($mime, $ext) = split("/", $mime); 
+    list($mime, $ext) = split("/", $mime);
     $name = "img-" . $id . '.' . $ext;
     if (move_uploaded_file($data, $dir . $name) == true) {
       return new PhotoModel($id, $route . $name, $owner);
@@ -27,3 +27,5 @@ class PhotoModel extends \HawkerHub\Models\Model {
       return null;
     }
   }
+}
+ 
