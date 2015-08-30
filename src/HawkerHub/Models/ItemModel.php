@@ -71,7 +71,7 @@ class ItemModel extends \HawkerHub\Models\Model{
 			$id = $db->lastInsertId();
 
 			if ($id > 0 && $success) {
-				return ItemModel::findByItemId($id);
+				return ItemModel::findByItemId($id,$userId,array());
 			}
 			return $success;
 		} catch (\PDOException $e) {

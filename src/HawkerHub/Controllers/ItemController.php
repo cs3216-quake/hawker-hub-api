@@ -4,6 +4,10 @@ namespace HawkerHub\Controllers;
 
 use \HawkerHub\Models\ItemModel;
 use \HawkerHub\Models\UserModel;
+use \Facebook\Facebook;
+use \Facebook\Exceptions\FacebookResponseException;
+use \Facebook\Exceptions\FacebookSDKException;
+use \Facebook\SignedRequest;
 
 /**
  * Class RegisterController
@@ -12,8 +16,14 @@ use \HawkerHub\Models\UserModel;
  * @package HawkerHub
  **/
 class ItemController extends \HawkerHub\Controllers\Controller {
-
+	private $fb;
 	public function __construct() {
+		$this->fb = new Facebook([
+			'app_id' => FB_APP_ID,
+			'app_secret' => FB_SECRET,
+			'default_graph_version' => 'v2.4',
+			'cookie' => true
+			]);
 	}
 
 	public function createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude) {
@@ -27,6 +37,20 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 			if (!$success) {
 				$app->render(500, ['Status' => 'An error occured while adding item.' ]);
 			} else {
+				$response = $this->fb->POST(
+				  'me/objects/hawker-hub:food',
+				  array( 'object' =>
+				  json_encode(array(
+				    'og:url' => 'http://hawkerhub.quanyang.me/item/'.$success->itemId,
+				    'og:title' => $success->itemName,
+				    'og:type' => 'hawker-hub:food',
+				    'og:image' => $success->photoURL,
+				    'og:description' => $success->caption,
+				    'fb:app_id' => '1466024120391100'
+				  ))
+				  ),
+				  $_SESSION['fb_access_token']
+				);
 				$app->render(201, (array) $success);
 			}
 		} else {
