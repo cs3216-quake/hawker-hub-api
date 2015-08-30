@@ -1,7 +1,0 @@
-*.swp
-composer.phar
-vendor/
-.idea/
-src/FacebookCredentials.php
-
-src/FacebookCredentials.php
