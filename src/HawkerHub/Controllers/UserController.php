@@ -29,6 +29,20 @@ class UserController extends \HawkerHub\Controllers\Controller {
 			]);
 	}
 
+	public function getAllFacebookFriendsId() {
+		$userCount = UserModel::getUserCount();
+
+		$response = $this->fb->get('/me?fields=friends.limit('.$userCount.')', $_SESSION['fb_access_token']);
+		$jsonData = json_decode($response->getBody(),true);
+		$friends = $jsonData['friends']['data'];
+		$friendsId = array();
+		foreach ($friends as $friend) {
+			array_push($friendsId, $friend['id']);
+		}
+		
+		return $friendsId;
+	}
+
 	public function deauthorizeFacebooks($signed_request) {
 		$app = \Slim\Slim::getInstance();
 		try {
@@ -54,17 +68,33 @@ class UserController extends \HawkerHub\Controllers\Controller {
 		if (!$user) {
 			$app->render(500, ['Status' => 'userId does not exist.' ]);
 		} else {
+			$this->getAllFacebookFriends();
 			$app->render(200, (array) $user );
 		}
 	}
 
 	public function getUserItems($userId, $startAt = 0, $limit = 15) {
 		$app = \Slim\Slim::getInstance();
-		$items = UserModel::getItemsFromUserId($userId, $startAt, $limit);
+		$items = UserModel::getItemsFromUserId($userId, $startAt, $limit, $_SESSION['userId'], $this->getAllFacebookFriendsId());
 		if (!$items) {
 			$app->render(500, ['Status' => 'userId does not exist.' ]);
 		} else {
 			$app->render(200, $items);
+		}
+	}
+
+	public function updateSettings($data) {
+		$app = \Slim\Slim::getInstance();
+		$privacy = $data['privacy'] == "public"? 1 : 0;
+		if($this->isLoggedIn()) {
+			$success = UserModel::updateSettings($_SESSION['userId'],$privacy);
+			if (!$success) {
+				$app->render(500, ['Status' => 'An error occured while updating user settings.' ]);
+			} else {
+				$app->render(200, ['Status' => 'Update successfully']);
+			}
+		} else {
+			$app->render(401, ['Status' => 'Not logged in.' ]);
 		}
 	}
 

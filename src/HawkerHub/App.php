@@ -78,6 +78,11 @@ class App {
                         $userController->deauthorizeFacebooks($signed_request);
                     });
 
+                    $app->post('/settings', function() use($app,$userController) {
+                        $jsonData = $app->request->getBody();   
+                        $userController->updateSettings(json_decode($jsonData,true));
+                    });
+
                     $app->get('/login', function() use($app,$userController) {
                         $userController->login();
                     });

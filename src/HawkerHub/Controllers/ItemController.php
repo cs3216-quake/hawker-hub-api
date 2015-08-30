@@ -52,7 +52,8 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 
 	public function findByItemId($itemId) {
 		$app = \Slim\Slim::getInstance();
-		$item = ItemModel::findByItemId($itemId);
+		$userController = new \HawkerHub\Controllers\UserController();
+		$item = ItemModel::findByItemId($itemId,$_SESSION['userId'],$userController->getAllFacebookFriendsId());
 		if ($item) {
 			$app->render(200, (array) $item);
 		} else {
@@ -74,8 +75,9 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 	}
 
 	private function searchFoodItemByKeyword($orderBy, $startAt, $limit, $keyword) {
+		$userController = new \HawkerHub\Controllers\UserController();
 		$app = \Slim\Slim::getInstance();
-		$item = ItemModel::listFoodItemByKeyword($orderBy, $startAt, $limit, $keyword);
+		$item = ItemModel::listFoodItemByKeyword($orderBy, $startAt, $limit, $keyword,$_SESSION['userId'],$userController->getAllFacebookFriendsId());
 		if ($item) {
 			$app->render(200, $item);
 		} else {
@@ -85,9 +87,10 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 
 	private function listFoodItemSortedByLocation($startAt = 0, $limit = 15, $latitude, $longtitude) {
 		$app = \Slim\Slim::getInstance();
+		$userController = new \HawkerHub\Controllers\UserController();
 		$distance = 10; //Kilometers
 
-		$item = ItemModel::listFoodItemSortedByLocation($startAt,$limit,$latitude,$longtitude,$distance);
+		$item = ItemModel::listFoodItemSortedByLocation($startAt,$limit,$latitude,$longtitude,$distance,$_SESSION['userId'],$userController->getAllFacebookFriendsId());
 		if ($item) {
 			$app->render(200, $item);
 		} else {
@@ -97,8 +100,9 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 
 	private function listFoodItemSortedByMostRecent($startAt = 0, $limit = 15) {
 		$app = \Slim\Slim::getInstance();
-
-		$item = ItemModel::listFoodItemSortedByMostRecent($startAt,$limit);
+		$userController = new \HawkerHub\Controllers\UserController();
+		
+		$item = ItemModel::listFoodItemSortedByMostRecent($startAt,$limit,$_SESSION['userId'],$userController->getAllFacebookFriendsId());
 		if ($item) {
 			$app->render(200, $item);
 		} else {

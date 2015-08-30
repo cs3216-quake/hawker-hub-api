@@ -54,7 +54,7 @@ class ItemModel extends \HawkerHub\Models\Model{
 		return $list;
 	}
 
-	public static function createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude,$userId) {
+	public static function createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude, $userId) {
 		try {
 			$db = \Db::getInstance();
 			$req = $db->prepare('INSERT INTO Item (`itemName`, `photoURL`, `caption`, `longtitude`, `latitude`, `userId`) VALUES (:itemName, :photoURL, :caption, :longtitude, :latitude, :userId);');
@@ -98,20 +98,24 @@ class ItemModel extends \HawkerHub\Models\Model{
 		}
 	}
 
-	public static function listFoodItemSortedByLocation($startAt,$endAt,$latitude,$longtitude,$distance) {
+	public static function listFoodItemSortedByLocation($startAt,$endAt,$latitude,$longtitude,$distance, $ownUserId, $facebookFriendsId) {
 		$list = [];
 		$db = \Db::getInstance();
 
 		$startAt = intval($startAt);
 		$endAt = intval($endAt);
+		$ownUserId = intval($ownUserId);
+		$facebookFriendsId = implode(",",$facebookFriendsId);
 
-		$req = $db->prepare('SELECT *, ( 6371 * acos( cos( radians(:lat) ) * cos( radians( latitude ) ) * cos( radians( longtitude ) - radians(:long) ) + sin( radians(:lat) ) * sin( radians( latitude ) ) ) ) AS distance FROM Item HAVING distance < :distance ORDER BY distance LIMIT :startAt, :endAt;');
+		$req = $db->prepare('SELECT *, ( 6371 * acos( cos( radians(:lat) ) * cos( radians( latitude ) ) * cos( radians( longtitude ) - radians(:long) ) + sin( radians(:lat) ) * sin( radians( latitude ) ) ) ) AS distance FROM Item,User WHERE Item.UserId = User.UserId and (User.publicProfile = 1 OR User.UserId = :ownUserId OR User.providerUserId IN (:facebookFriendsId)) HAVING distance < :distance ORDER BY distance LIMIT :startAt, :endAt;');
 
 		$req->bindParam(':lat', $latitude, \PDO::PARAM_STR);
 		$req->bindParam(':long', $longtitude, \PDO::PARAM_STR);
 		$req->bindParam(':distance', $distance, \PDO::PARAM_INT);
 		$req->bindParam(':startAt', $startAt, \PDO::PARAM_INT);
 		$req->bindParam(':endAt', $endAt, \PDO::PARAM_INT);
+		$req->bindParam(':ownUserId', $ownUserId, \PDO::PARAM_INT);
+		$req->bindParam(':facebookFriendsId', $facebookFriendsId, \PDO::PARAM_STR);
 
 		$req->execute();
 		foreach($req->fetchAll() as $item) {
@@ -127,17 +131,21 @@ class ItemModel extends \HawkerHub\Models\Model{
 		return $list;
 	}
 
-	public static function listFoodItemSortedByMostRecent($startAt,$endAt) {
+	public static function listFoodItemSortedByMostRecent($startAt,$endAt, $ownUserId, $facebookFriendsId) {
 		$list = [];
 		$db = \Db::getInstance();
 
 		$startAt = intval($startAt);
 		$endAt = intval($endAt);
+		$ownUserId = intval($ownUserId);
+		$facebookFriendsId = implode(",",$facebookFriendsId);
 
-		$req = $db->prepare('SELECT * FROM Item ORDER BY addedDate DESC LIMIT :startAt, :endAt;');
+		$req = $db->prepare('SELECT * FROM Item,User WHERE Item.UserId = User.UserId and (User.publicProfile = 1 OR User.UserId = :ownUserId OR User.providerUserId IN (:facebookFriendsId)) ORDER BY Item.addedDate DESC LIMIT :startAt, :endAt;');
 
 		$req->bindParam(':startAt', $startAt, \PDO::PARAM_INT);
 		$req->bindParam(':endAt', $endAt, \PDO::PARAM_INT);
+		$req->bindParam(':ownUserId', $ownUserId, \PDO::PARAM_INT);
+		$req->bindParam(':facebookFriendsId', $facebookFriendsId, \PDO::PARAM_STR);
 
 		$req->execute();
 		foreach($req->fetchAll() as $item) {
@@ -153,13 +161,15 @@ class ItemModel extends \HawkerHub\Models\Model{
 		return $list;
 	}
 
-	public static function listFoodItemByKeyword($orderBy, $startAt, $endAt, $keyword) {
+	public static function listFoodItemByKeyword($orderBy, $startAt, $endAt, $keyword, $ownUserId, $facebookFriendsId) {
 		$list = [];
 		$db = \Db::getInstance();
 
 		$find = '%'.$keyword.'%';
 		$startAt = intval($startAt);
 		$endAt = intval($endAt);
+		$ownUserId = intval($ownUserId);
+		$facebookFriendsId = implode(",",$facebookFriendsId);
 
 		$sort = '';
 		switch($orderBy) {
@@ -176,11 +186,13 @@ class ItemModel extends \HawkerHub\Models\Model{
 			break;
 		}
 
-		$req = $db->prepare("SELECT * FROM Item WHERE itemName LIKE :keyword OR caption LIKE :keyword ORDER BY $sort LIMIT :startAt, :endAt");
+		$req = $db->prepare("SELECT * FROM Item,User WHERE Item.UserId = User.UserId and (User.publicProfile = 1 OR User.UserId = :ownUserId OR User.providerUserId IN (:facebookFriendsId)) AND Item.itemName LIKE :keyword OR Item.caption LIKE :keyword ORDER BY $sort LIMIT :startAt, :endAt");
 
 		$req->bindParam(':keyword', $find );
 		$req->bindParam(':startAt', $startAt, \PDO::PARAM_INT);
 		$req->bindParam(':endAt', $endAt, \PDO::PARAM_INT);
+		$req->bindParam(':ownUserId', $ownUserId, \PDO::PARAM_INT);
+		$req->bindParam(':facebookFriendsId', $facebookFriendsId, \PDO::PARAM_STR);
 
 		$req->execute();
 		foreach($req->fetchAll() as $item) {
@@ -196,18 +208,22 @@ class ItemModel extends \HawkerHub\Models\Model{
 		return $list;
 	}
 
-	public static function getItemsFromUserId($userId, $startAt, $limit) {
+	public static function getItemsFromUserId($userId, $startAt, $limit, $ownUserId, $facebookFriendsId) {
 		$list = [];
 		$db = \Db::getInstance();
       	// we make sure $id is an integer
 		$userId = intval($userId);
 		$startAt = intval($startAt);
 		$limit = intval($limit);
-		$req = $db->prepare('SELECT * FROM Item WHERE UserId = :userId order by itemId ASC limit :startAt, :limit');
+		$ownUserId = intval($ownUserId);
+		$facebookFriendsId = implode(",",$facebookFriendsId);
+		$req = $db->prepare('SELECT * FROM Item,User WHERE Item.UserId = User.UserId and (User.publicProfile = 1 OR User.UserId = :ownUserId OR User.providerUserId IN (:facebookFriendsId)) AND Item.UserId = :userId order by Item.itemId ASC limit :startAt, :limit');
       	// the query was prepared, now we replace :id with our actual $id value
 		$req->bindParam(':userId', $userId, \PDO::PARAM_INT);
 		$req->bindParam(':startAt', $startAt, \PDO::PARAM_INT);
 		$req->bindParam(':limit', $limit, \PDO::PARAM_INT);
+		$req->bindParam(':ownUserId', $ownUserId, \PDO::PARAM_INT);
+		$req->bindParam(':facebookFriendsId', $facebookFriendsId, \PDO::PARAM_STR);
 		$req->execute();
 
 		foreach($req->fetchAll() as $item) {
@@ -223,13 +239,21 @@ class ItemModel extends \HawkerHub\Models\Model{
 		return $list;
 	}
 
-	public static function findByItemId($itemId) {
+	public static function findByItemId($itemId, $userId, $facebookFriendsId) {
 		$db = \Db::getInstance();
       	// we make sure $id is an integer
-		$userId = intval($itemId);
-		$req = $db->prepare('SELECT * FROM Item WHERE itemId = :itemId');
+		$itemId = intval($itemId);
+		$userId = intval($userId);
+		$facebookFriendsId = implode(",",$facebookFriendsId);
+		$req = $db->prepare('SELECT * FROM Item,User WHERE Item.UserId = User.UserId and Item.itemId = :itemId and (User.publicProfile = 1 OR User.UserId = :userId OR User.providerUserId IN (:facebookFriendsId))');
+      	
       	// the query was prepared, now we replace :id with our actual $id value
-		$req->execute(array('itemId' => $itemId));
+		$req->execute(array(
+			'itemId' => $itemId,
+			'userId' => $userId,
+			'facebookFriendsId' => $facebookFriendsId
+			));
+
 		$item = $req->fetch();
 		if (!$item) {
 			return false;

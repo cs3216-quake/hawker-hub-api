@@ -20,6 +20,14 @@ class UserModel extends \HawkerHub\Models\Model{
 		$this->providerUserId = $providerUserId;
 	}
 
+	public static function getUserCount() {
+		$db = \Db::getInstance();
+		$req = $db->query('SELECT COUNT(*) FROM User');
+		$req->execute();
+		$count = $req->fetch()[0];
+		return $count;
+	}
+
 	public static function all() {
 		$list = [];
 		$db = \Db::getInstance();
@@ -31,6 +39,25 @@ class UserModel extends \HawkerHub\Models\Model{
 		}
 
 		return $list;
+	}
+
+	public static function updateSettings($userId, $privacy) {
+		try {
+	      $db = \Db::getInstance();
+	      $userId = intval($userId);
+	      $privacy = intval($privacy);
+
+	      $req = $db->prepare('UPDATE User SET publicProfile = :privacy where userId = :userId;');
+
+	      $success = $req->execute(array(
+	        'userId' => $userId,
+	        'privacy' => $privacy
+	        ));
+
+	      return $success;
+	    } catch (\PDOException $e) {
+	      return false;
+	    }
 	}
 
 	public static function deleteUserWithProviderUserId($providerUserId) {
@@ -66,8 +93,8 @@ class UserModel extends \HawkerHub\Models\Model{
 		}
 	}
 
-	public static function getItemsFromUserId($userId, $startAt, $limit) {
-		return ItemModel::getItemsFromUserId($userId, $startAt, $limit);
+	public static function getItemsFromUserId($userId, $startAt, $limit, $ownUserId, $facebookFriendsId) {
+		return ItemModel::getItemsFromUserId($userId, $startAt, $limit, $ownUserId, $facebookFriendsId);
 	}
 
 	public static function findByProviderUserId($userId) {
