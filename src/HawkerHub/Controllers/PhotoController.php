@@ -34,7 +34,7 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
                     }
                 }
             } else {
-                $this->app->render(400, ['status' => 'File missing or not uploaded properly']);
+                $app->render(400, ['status' => 'File missing or not uploaded properly']);
             }
         } else {
             $app->render(401, array("Status" => "User not logged in"));
