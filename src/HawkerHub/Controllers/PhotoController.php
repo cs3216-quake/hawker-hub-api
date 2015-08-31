@@ -22,11 +22,11 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
             $currUserId = $this->getCurrentUserId();
             if ($this->isFileValid($rawFiles['photoData'])) {
                 $photoFile = $rawFiles['photoData'];
-                $fileInfo = $this->createFileInfo($photoFile);
-                if (strcmp($info['TYPE'] , 'image') !== 0) {
+                $fileInfo = $this->createFileInfo($photoFile, $host);
+                if (strcmp($fileInfo['TYPE'] , 'image') !== 0) {
                     $app->render(415, ['Status' => 'Inappropriate file format']);
                 } else {
-                    $result = PhotoModel::saveToFile($currUserId, $photoFile['tmp_name'], $info['MIME-TYPE'], $info['DIRECTORY'], $info['ROUTE']);
+                    $result = PhotoModel::saveToFile($currUserId, $photoFile['tmp_name'], $fileInfo['MIME-TYPE'], $fileInfo['DIRECTORY'], $fileInfo['ROUTE']);
                     if(is_null($result)) {
                         $app->render(500, array("Status" => "Unable to save file"));
                     } else {
@@ -42,16 +42,16 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
     }
 
     public function isFileValid($file) {
-        return ( isset($file) && $file['error'] != UPLOAD_ERR_OK );
+        return ( isset($file) && $file['error'] == UPLOAD_ERR_OK );
     }
 
-    public function createFileInfo($photoFile){
+    public function createFileInfo($photoFile, $host){
         $app = \Slim\Slim::getInstance();
         $info = array();
         $info['DIRECTORY'] = 'uploads/';
         $info['ROUTE'] = $host . $app->urlFor('photo') .'/';
         $info['MIME-TYPE'] = $photoFile['type'];
-        list($type, $ext) = split('/', $mime);
+        list($type, $ext) = split('/', $info['MIME-TYPE']);
         $info['TYPE'] = $type;
         $info['EXTENSION'] = $ext;
         return $info;

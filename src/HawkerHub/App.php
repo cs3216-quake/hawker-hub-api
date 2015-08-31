@@ -79,7 +79,7 @@ class App {
                     });
 
                     $app->post('/settings', function() use($app,$userController) {
-                        $jsonData = $app->request->getBody();   
+                        $jsonData = $app->request->getBody();
                         $userController->updateSettings(json_decode($jsonData,true));
                     });
 
@@ -209,7 +209,7 @@ class App {
 
                     // Route /api/item/photo
                     $app->group('/photo', function() use ($app) {
-                        $photoController = new \HawkerHub\Controllers\PhotoController($app);
+                        $photoController = new \HawkerHub\Controllers\PhotoController();
 
                         // Get /api/item/photo/{photo}
                         // Note: Route maps to uploads/{photo}
@@ -220,7 +220,7 @@ class App {
                         // POST /api/item/photo
                         $app->post('', function() use ($app, $photoController) {
                             $rawFiles = $_FILES;
-                            $photoController->uploadPhoto($this->app->request->getUrl(), $rawFiles);
+                            $photoController->uploadPhoto($app->request->getUrl(), $rawFiles);
                         })->name('photo');
                     });
 
