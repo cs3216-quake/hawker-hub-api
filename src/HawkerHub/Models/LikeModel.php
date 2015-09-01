@@ -36,14 +36,19 @@ class LikeModel extends \HawkerHub\Models\Model {
     }
   }
 
-  public static function findLikesByItem($itemId) {
+  public static function findLikesByItem($itemId, $ownUserId, $facebookFriendsId) {
     $result = [];
-	$db = \Db::getInstance();
+    $db = \Db::getInstance();
     $itemId = intval($itemId);
-    $req = $db->prepare('SELECT * FROM Approve WHERE itemId = :itemId');
+    $ownUserId = intval($ownUserId);
+    $facebookFriendsId = implode(",",$facebookFriendsId);
+
+    $req = $db->prepare('SELECT * FROM Approve,Item,User WHERE Approve.itemId = Item.itemId and Approve.userId = User.userId and (User.publicProfile = 1 OR User.UserId = :ownUserId OR User.providerUserId IN (:facebookFriendsId)) and Item.itemId = :itemId');
     // the query was prepared, now we replace :id with our actual $id value
 		$req->execute(array(
-			'itemId' => $itemId
+			'itemId' => $itemId,
+      'ownUserId' => $ownUserId,
+      'facebookFriendsId' => $facebookFriendsId
 			));
 
       // we create a result of Like objects from the database results
@@ -57,7 +62,7 @@ class LikeModel extends \HawkerHub\Models\Model {
 		return $result;
   }
 
-  public static function addLikeByItem($itemId, $userId) {
+  public static function addLikeByItemId($itemId, $userId) {
     try {
   	  $db = \Db::getInstance();
   	  $itemId = intval($itemId);
@@ -65,7 +70,7 @@ class LikeModel extends \HawkerHub\Models\Model {
   	  $req = $db->prepare('INSERT INTO Approve (userId, itemId) VALUES (:userId, :itemId)');
   	  // the query was prepared, now we replace :id with our actual $id value
   	  $success = $req->execute(array(
-  		  	'userId' => $userId,
+  		  'userId' => $userId,
   			'itemId' => $itemId
   		));
 

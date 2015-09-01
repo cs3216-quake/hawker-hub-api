@@ -125,7 +125,8 @@ class App {
 
                     // Post /api/item
                     $app->post('', function() use ($app,$itemController) {
-                        $allPostVars = $app->request->post();
+                        $jsonData = $app->request->getBody();
+                        $allPostVars = json_decode($jsonData,true);
 
                         $itemName = $allPostVars['itemName'];
                         $photoURL = $allPostVars['photoURL'];

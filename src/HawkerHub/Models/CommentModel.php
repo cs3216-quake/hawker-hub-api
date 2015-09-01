@@ -41,14 +41,19 @@ class CommentModel extends \HawkerHub\Models\Model{
     }
   }
 
-  public static function findCommentsByItem($itemId) {
+  public static function findCommentsByItem($itemId, $ownUserId, $facebookFriendsId) {
     $result = [];
     $db = \Db::getInstance();
     $itemId = intval($itemId);
-    $req = $db->prepare('SELECT * FROM Comment WHERE itemId = :itemId');
+    $ownUserId = intval($ownUserId);
+    $facebookFriendsId = implode(",",$facebookFriendsId);
+
+    $req = $db->prepare('SELECT * FROM Comment,User,Item WHERE Comment.userId = User.userId and Comment.itemId = Item.itemId and (User.publicProfile = 1 OR User.UserId = :ownUserId OR User.providerUserId IN (:facebookFriendsId)) and Comment.itemId = :itemId');
     // the query was prepared, now we replace :id with our actual $id value
     $req->execute(array(
-     'itemId' => $itemId
+      'itemId' => $itemId,
+      'ownUserId' => $ownUserId,
+      'facebookFriendsId' => $facebookFriendsId
     ));
 
       // we create a result of Like objects from the database results

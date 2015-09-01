@@ -17,7 +17,11 @@ class CommentController extends \HawkerHub\Controllers\Controller {
 
     public function listComments($itemId) {
         $app = \Slim\Slim::getInstance();
-        $commentData = CommentModel::findCommentsByItem($itemId);
+        $userController = new \HawkerHub\Controllers\UserController();
+        $facebookFriendsId = $userController->getAllFacebookFriendsId();
+        $ownUserId = @$_SESSION['userId']?$_SESSION['userId']:"";
+
+        $commentData = CommentModel::findCommentsByItem($itemId, $ownUserId, $facebookFriendsId);
         if (empty($commentData)) {
             $app->render(200, []);
         } else {
@@ -47,10 +51,15 @@ class CommentController extends \HawkerHub\Controllers\Controller {
         $userController = new \HawkerHub\Controllers\UserController();
 
         if ($userController->isLoggedIn()) {
-            $currUserId = $this->getCurrentUserId();
-            $result = CommentModel::addCommentByItem($itemId, $currUserId, $message);
-            if($result) {
-                $app->render(200, array("Status" => "OK"));
+
+            if ($userController->canViewItem($itemId)) {
+                $currUserId = $this->getCurrentUserId();
+                $result = CommentModel::addCommentByItem($itemId, $currUserId, $message);
+                if($result) {
+                    $app->render(200, array("Status" => "OK"));
+                } else {
+                    $app->render(500, array("Status" => "Unable to comment on item"));
+                }
             } else {
                 $app->render(500, array("Status" => "Unable to comment on item"));
             }

@@ -29,18 +29,36 @@ class UserController extends \HawkerHub\Controllers\Controller {
 			]);
 	}
 
-	public function getAllFacebookFriendsId() {
-		$userCount = UserModel::getUserCount();
+	public function canViewItem($itemId) {
+		$facebookFriendsId = $this->getAllFacebookFriendsId();
+        $ownUserId = @$_SESSION['userId']?$_SESSION['userId']:"";
 
-		$response = $this->fb->get('/me?fields=friends.limit('.$userCount.')', $_SESSION['fb_access_token']);
-		$jsonData = json_decode($response->getBody(),true);
-		$friends = $jsonData['friends']['data'];
-		$friendsId = array();
-		foreach ($friends as $friend) {
-			array_push($friendsId, $friend['id']);
+        return UserModel::canViewItem($itemId, $ownUserId, $facebookFriendsId);
+	}
+
+	public function canViewItemsByUserId($userId) {
+		$facebookFriendsId = $this->getAllFacebookFriendsId();
+        $ownUserId = @$_SESSION['userId']?$_SESSION['userId']:"";
+
+        return UserModel::canViewItemsByUserId($userId, $ownUserId, $facebookFriendsId);
+	}
+
+	public function getAllFacebookFriendsId() {
+
+		if ($this->isLoggedIn()) {
+			$userCount = UserModel::getUserCount();
+
+			$response = $this->fb->get('/me?fields=friends.limit('.$userCount.')', $_SESSION['fb_access_token']);
+			$jsonData = json_decode($response->getBody(),true);
+			$friends = $jsonData['friends']['data'];
+			$friendsId = array();
+			foreach ($friends as $friend) {
+				array_push($friendsId, $friend['id']);
+			}
+			return $friendsId;
+		} else {
+			return [];
 		}
-		
-		return $friendsId;
 	}
 
 	public function deauthorizeFacebooks($signed_request) {
