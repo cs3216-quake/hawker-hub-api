@@ -33,7 +33,11 @@ class LikeController extends \HawkerHub\Controllers\Controller {
 
     public function listLikes($itemId) {
         $app = \Slim\Slim::getInstance();
-        $likeData = LikeModel::findLikesByItem($itemId);
+        $userController = new \HawkerHub\Controllers\UserController();
+        $facebookFriendsId = $userController->getAllFacebookFriendsId();
+        $ownUserId = @$_SESSION['userId']?$_SESSION['userId']:"";
+
+        $likeData = LikeModel::findLikesByItem($itemId, $ownUserId, $facebookFriendsId);
         if (empty($likeData)) {
             $app->render(200, []);
         } else {
@@ -47,10 +51,15 @@ class LikeController extends \HawkerHub\Controllers\Controller {
         $app = \Slim\Slim::getInstance();
         
         if ($userController->isLoggedIn()) {
-            $currUserId = $this->getCurrentUserId();    
-            $result = LikeModel::addLikeByItem($itemId, $currUserId);
-            if($result) {
-                $app->render(200, array("Status" => "OK"));
+
+            if ($userController->canViewItem($itemId)) {
+                $currUserId = $this->getCurrentUserId();    
+                $result = LikeModel::addLikeByItemId($itemId, $currUserId);
+                if($result) {
+                    $app->render(200, array("Status" => "OK"));
+                } else {
+                    $app->render(500, array("Status" => "Unable to like item"));
+                } 
             } else {
                 $app->render(500, array("Status" => "Unable to like item"));
             }

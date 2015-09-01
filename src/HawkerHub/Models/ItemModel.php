@@ -34,26 +34,6 @@ class ItemModel extends \HawkerHub\Models\Model{
 		$this->likes = $likes;
 	}
 
-	public static function all() {
-		$list = [];
-		$db = \Db::getInstance();
-		$req = $db->query('SELECT * FROM Item');
-
-      // we create a list of Post objects from the database results
-		foreach($req->fetchAll() as $item) {
-			$userId = $item['userId'];
-			$itemId = $item['itemId'];
-
-			$user = UserModel::findByUserId($userId);
-			$comments = CommentModel::findCommentsByItem($itemId);
-			$likes = LikeModel::findLikesByItem($itemId);
-
-			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$user,$comments,$likes);
-		}
-
-		return $list;
-	}
-
 	public static function createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude, $userId) {
 		try {
 			$db = \Db::getInstance();
@@ -105,7 +85,7 @@ class ItemModel extends \HawkerHub\Models\Model{
 		$startAt = intval($startAt);
 		$endAt = intval($endAt);
 		$ownUserId = intval($ownUserId);
-		$facebookFriendsId = implode(",",$facebookFriendsId);
+		$facebookFriendsIdImploded = implode(",",$facebookFriendsId);
 
 		$req = $db->prepare('SELECT *, ( 6371 * acos( cos( radians(:lat) ) * cos( radians( latitude ) ) * cos( radians( longtitude ) - radians(:long) ) + sin( radians(:lat) ) * sin( radians( latitude ) ) ) ) AS distance FROM Item,User WHERE Item.UserId = User.UserId and (User.publicProfile = 1 OR User.UserId = :ownUserId OR User.providerUserId IN (:facebookFriendsId)) HAVING distance < :distance ORDER BY distance LIMIT :startAt, :endAt;');
 
@@ -115,7 +95,7 @@ class ItemModel extends \HawkerHub\Models\Model{
 		$req->bindParam(':startAt', $startAt, \PDO::PARAM_INT);
 		$req->bindParam(':endAt', $endAt, \PDO::PARAM_INT);
 		$req->bindParam(':ownUserId', $ownUserId, \PDO::PARAM_INT);
-		$req->bindParam(':facebookFriendsId', $facebookFriendsId, \PDO::PARAM_STR);
+		$req->bindParam(':facebookFriendsId', $facebookFriendsIdImploded, \PDO::PARAM_STR);
 
 		$req->execute();
 		foreach($req->fetchAll() as $item) {
@@ -123,8 +103,8 @@ class ItemModel extends \HawkerHub\Models\Model{
 			$itemId = $item['itemId'];
 
 			$user = UserModel::findByUserId($userId);
-			$comments = CommentModel::findCommentsByItem($itemId);
-			$likes = LikeModel::findLikesByItem($itemId);
+			$comments = CommentModel::findCommentsByItem($itemId, $ownUserId, $facebookFriendsId);
+			$likes = LikeModel::findLikesByItem($itemId, $ownUserId, $facebookFriendsId);
 
 			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$user,$comments,$likes);
 		}
@@ -138,14 +118,14 @@ class ItemModel extends \HawkerHub\Models\Model{
 		$startAt = intval($startAt);
 		$endAt = intval($endAt);
 		$ownUserId = intval($ownUserId);
-		$facebookFriendsId = implode(",",$facebookFriendsId);
+		$facebookFriendsIdImploded = implode(",",$facebookFriendsId);
 
 		$req = $db->prepare('SELECT * FROM Item,User WHERE Item.UserId = User.UserId and (User.publicProfile = 1 OR User.UserId = :ownUserId OR User.providerUserId IN (:facebookFriendsId)) ORDER BY Item.addedDate DESC LIMIT :startAt, :endAt;');
 
 		$req->bindParam(':startAt', $startAt, \PDO::PARAM_INT);
 		$req->bindParam(':endAt', $endAt, \PDO::PARAM_INT);
 		$req->bindParam(':ownUserId', $ownUserId, \PDO::PARAM_INT);
-		$req->bindParam(':facebookFriendsId', $facebookFriendsId, \PDO::PARAM_STR);
+		$req->bindParam(':facebookFriendsId', $facebookFriendsIdImploded, \PDO::PARAM_STR);
 
 		$req->execute();
 		foreach($req->fetchAll() as $item) {
@@ -153,8 +133,8 @@ class ItemModel extends \HawkerHub\Models\Model{
 			$itemId = $item['itemId'];
 
 			$user = UserModel::findByUserId($userId);
-			$comments = CommentModel::findCommentsByItem($itemId);
-			$likes = LikeModel::findLikesByItem($itemId);
+			$comments = CommentModel::findCommentsByItem($itemId, $ownUserId, $facebookFriendsId);
+			$likes = LikeModel::findLikesByItem($itemId, $ownUserId, $facebookFriendsId);
 
 			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$user,$comments,$likes);
 		}
@@ -169,7 +149,7 @@ class ItemModel extends \HawkerHub\Models\Model{
 		$startAt = intval($startAt);
 		$endAt = intval($endAt);
 		$ownUserId = intval($ownUserId);
-		$facebookFriendsId = implode(",",$facebookFriendsId);
+		$facebookFriendsIdImploded = implode(",",$facebookFriendsId);
 
 		$sort = '';
 		switch($orderBy) {
@@ -192,7 +172,7 @@ class ItemModel extends \HawkerHub\Models\Model{
 		$req->bindParam(':startAt', $startAt, \PDO::PARAM_INT);
 		$req->bindParam(':endAt', $endAt, \PDO::PARAM_INT);
 		$req->bindParam(':ownUserId', $ownUserId, \PDO::PARAM_INT);
-		$req->bindParam(':facebookFriendsId', $facebookFriendsId, \PDO::PARAM_STR);
+		$req->bindParam(':facebookFriendsId', $facebookFriendsIdImploded, \PDO::PARAM_STR);
 
 		$req->execute();
 		foreach($req->fetchAll() as $item) {
@@ -200,8 +180,8 @@ class ItemModel extends \HawkerHub\Models\Model{
 			$itemId = $item['itemId'];
 
 			$user = UserModel::findByUserId($userId);
-			$comments = CommentModel::findCommentsByItem($itemId);
-			$likes = LikeModel::findLikesByItem($itemId);
+			$comments = CommentModel::findCommentsByItem($itemId, $ownUserId, $facebookFriendsId);
+			$likes = LikeModel::findLikesByItem($itemId, $ownUserId, $facebookFriendsId);
 
 			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$user,$comments,$likes);
 		}
@@ -216,14 +196,14 @@ class ItemModel extends \HawkerHub\Models\Model{
 		$startAt = intval($startAt);
 		$limit = intval($limit);
 		$ownUserId = intval($ownUserId);
-		$facebookFriendsId = implode(",",$facebookFriendsId);
+		$facebookFriendsIdImploded = implode(",",$facebookFriendsId);
 		$req = $db->prepare('SELECT * FROM Item,User WHERE Item.UserId = User.UserId and (User.publicProfile = 1 OR User.UserId = :ownUserId OR User.providerUserId IN (:facebookFriendsId)) AND Item.UserId = :userId order by Item.itemId ASC limit :startAt, :limit');
       	// the query was prepared, now we replace :id with our actual $id value
 		$req->bindParam(':userId', $userId, \PDO::PARAM_INT);
 		$req->bindParam(':startAt', $startAt, \PDO::PARAM_INT);
 		$req->bindParam(':limit', $limit, \PDO::PARAM_INT);
 		$req->bindParam(':ownUserId', $ownUserId, \PDO::PARAM_INT);
-		$req->bindParam(':facebookFriendsId', $facebookFriendsId, \PDO::PARAM_STR);
+		$req->bindParam(':facebookFriendsId', $facebookFriendsIdImploded, \PDO::PARAM_STR);
 		$req->execute();
 
 		foreach($req->fetchAll() as $item) {
@@ -231,27 +211,27 @@ class ItemModel extends \HawkerHub\Models\Model{
 			$itemId = $item['itemId'];
 
 			$user = UserModel::findByUserId($userId);
-			$comments = CommentModel::findCommentsByItem($itemId);
-			$likes = LikeModel::findLikesByItem($itemId);
+			$comments = CommentModel::findCommentsByItem($itemId, $ownUserId, $facebookFriendsId);
+			$likes = LikeModel::findLikesByItem($itemId, $ownUserId, $facebookFriendsId);
 
 			$list[] = new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$user,$comments,$likes);
 		}
 		return $list;
 	}
 
-	public static function findByItemId($itemId, $userId, $facebookFriendsId) {
+	public static function findByItemId($itemId, $ownUserId, $facebookFriendsId) {
 		$db = \Db::getInstance();
       	// we make sure $id is an integer
 		$itemId = intval($itemId);
-		$userId = intval($userId);
-		$facebookFriendsId = implode(",",$facebookFriendsId);
-		$req = $db->prepare('SELECT * FROM Item,User WHERE Item.UserId = User.UserId and Item.itemId = :itemId and (User.publicProfile = 1 OR User.UserId = :userId OR User.providerUserId IN (:facebookFriendsId))');
+		$ownUserId = intval($ownUserId);
+		$facebookFriendsIdImploded = implode(",",$facebookFriendsId);
+		$req = $db->prepare('SELECT * FROM Item,User WHERE Item.itemId = :itemId and Item.UserId = User.UserId and (User.publicProfile = 1 OR User.UserId = :userId OR User.providerUserId IN (:facebookFriendsId))');
       	
       	// the query was prepared, now we replace :id with our actual $id value
 		$req->execute(array(
 			'itemId' => $itemId,
-			'userId' => $userId,
-			'facebookFriendsId' => $facebookFriendsId
+			'userId' => $ownUserId,
+			'facebookFriendsId' => $facebookFriendsIdImploded
 			));
 
 		$item = $req->fetch();
@@ -261,9 +241,9 @@ class ItemModel extends \HawkerHub\Models\Model{
 		$userId = $item['userId'];
 		$itemId = $item['itemId'];
 
-		$user = UserModel::findByUserId($userId);
-		$comments = CommentModel::findCommentsByItem($itemId);
-		$likes = LikeModel::findLikesByItem($itemId);
+		$user = UserModel::findByUserId($item['userId']);
+		$comments = CommentModel::findCommentsByItem($itemId, $ownUserId, $facebookFriendsId);
+		$likes = LikeModel::findLikesByItem($itemId, $ownUserId, $facebookFriendsId);
 
 		return new ItemModel($item['itemId'],$item['addedDate'],$item['itemName'],$item['photoURL'],$item['caption'],$item['longtitude'],$item['latitude'],$user,$comments,$likes);
 	}

@@ -93,8 +93,51 @@ class UserModel extends \HawkerHub\Models\Model{
 		}
 	}
 
+	//	Helper method to call ItemModel function.
 	public static function getItemsFromUserId($userId, $startAt, $limit, $ownUserId, $facebookFriendsId) {
 		return ItemModel::getItemsFromUserId($userId, $startAt, $limit, $ownUserId, $facebookFriendsId);
+	}
+
+	public static function canViewItem($itemId, $ownUserId, $facebookFriendsId) {
+		$db = \Db::getInstance();
+
+		$itemId = intval($itemId);
+		$ownUserId = intval($ownUserId);
+		$facebookFriendsId = implode(",",$facebookFriendsId);
+
+		$req = $db->prepare('SELECT * FROM User,Item WHERE Item.userId = User.userId and  Item.itemId = :itemId and (User.publicProfile = 1 OR User.UserId = :ownUserId OR User.providerUserId IN (:facebookFriendsId)) ');
+      	// the query was prepared, now we replace :id with our actual $id value
+		$req->execute(array(
+			'itemId' => $itemId,
+			'ownUserId' => $ownUserId,
+			'facebookFriendsId' => $facebookFriendsId
+			));
+		$success = $req->fetch();
+		if (!$success) {
+			return false;
+		}
+		return true;
+	}
+
+	public static function canViewItemsByUserId($userId, $ownUserId, $facebookFriendsId) {
+		$db = \Db::getInstance();
+
+		$userId = intval($userId);
+		$ownUserId = intval($ownUserId);
+		$facebookFriendsId = implode(",",$facebookFriendsId);
+
+		$req = $db->prepare('SELECT * FROM User WHERE userId = :userId and (User.publicProfile = 1 OR User.UserId = :ownUserId OR User.providerUserId IN (:facebookFriendsId)) ');
+      	// the query was prepared, now we replace :id with our actual $id value
+		$req->execute(array(
+			'userId' => $userId,
+			'ownUserId' => $ownUserId,
+			'facebookFriendsId' => $facebookFriendsId
+			));
+		$success = $req->fetch();
+		if (!$success) {
+			return false;
+		}
+		return true;
 	}
 
 	public static function findByProviderUserId($userId) {
