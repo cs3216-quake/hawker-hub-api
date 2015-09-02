@@ -160,6 +160,15 @@ class UserController extends \HawkerHub\Controllers\Controller {
 		}
 	}
 
+	public function isLogin() {
+		$app = \Slim\Slim::getInstance();
+		if ($this->isLoggedIn()) {
+			$app->render(200, ['Status' => 'Already logged in.' ]);
+		} else {
+			$app->render(200, ['Status' => 'Not logged in.' ]);
+		}
+	}
+
 	public function login() {
 		$app = \Slim\Slim::getInstance();
 

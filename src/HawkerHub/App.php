@@ -85,6 +85,10 @@ class App {
                     });
 
                     $app->get('/login', function() use($app,$userController) {
+                        $userController->isLogin();
+                    });
+
+                    $app->post('/login', function() use($app,$userController) {
                         $userController->login();
                     });
 
