@@ -85,6 +85,14 @@ CREATE TABLE IF NOT EXISTS `User` (
   `publicProfile` boolean COLLATE utf8_bin DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+
+CREATE TABLE IF NOT EXISTS `Photo` (
+  `photoId` int(11) NOT NULL,
+  `fileName` varchar(255) COLLATE utf8_bin NOT NULL,
+  `uniqueId` varchar(255) COLLATE utf8_bin NOT NULL,
+  `userId` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 --
 -- Indexes for dumped tables
 --
@@ -130,6 +138,12 @@ ALTER TABLE `User`
   ADD UNIQUE KEY `providerUserId` (`providerUserId`),
   ADD KEY `providerId_idxfk` (`providerId`);
 
+
+ALTER TABLE `Photo`
+  ADD PRIMARY KEY (`photoId`),
+  ADD UNIQUE KEY `fileName` (`fileName`),
+  ADD UNIQUE KEY `uniqueId` (`uniqueId`),
+  ADD KEY `userId_idxfk` (`userId`);
 --
 -- AUTO_INCREMENT for dumped tables
 --
@@ -159,6 +173,9 @@ ALTER TABLE `Provider`
 --
 ALTER TABLE `User`
   MODIFY `userId` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `Photo`
+  MODIFY `photoId` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- Constraints for dumped tables
 --
@@ -188,3 +205,7 @@ ALTER TABLE `Item`
 --
 ALTER TABLE `User`
   ADD CONSTRAINT `User_ibfk_1` FOREIGN KEY (`providerId`) REFERENCES `Provider` (`providerId`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `Photo`
+  ADD CONSTRAINT `Photo_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `User` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE;
+

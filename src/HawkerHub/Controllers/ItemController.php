@@ -23,12 +23,14 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 			]);
 	}
 
-	public function createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude) {
+	public function createNewItem($itemName, $photoURL, $caption, $longtitude=0, $latitude=0) {
 		$app = \Slim\Slim::getInstance();
 		$caption = htmlspecialchars($caption, ENT_QUOTES, 'UTF-8');
 		$itemName = htmlspecialchars($itemName, ENT_QUOTES, 'UTF-8');
 		$userController = new \HawkerHub\Controllers\UserController();
 
+		$longtitude= $longtitude===null?0:$longtitude;
+		$latitude= $latitude===null?0:$latitude;
 		if ($userController->isLoggedIn()) {
 			$success = ItemModel::createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude, $_SESSION['userId']);
 			if (!$success) {

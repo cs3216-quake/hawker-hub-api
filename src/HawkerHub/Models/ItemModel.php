@@ -34,7 +34,7 @@ class ItemModel extends \HawkerHub\Models\Model{
 		$this->likes = $likes;
 	}
 
-	public static function createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude, $userId) {
+	public static function createNewItem($itemName, $photoURL, $caption, $longtitude=0, $latitude=0, $userId) {
 		try {
 			$db = \Db::getInstance();
 			$req = $db->prepare('INSERT INTO Item (`itemName`, `photoURL`, `caption`, `longtitude`, `latitude`, `userId`) VALUES (:itemName, :photoURL, :caption, :longtitude, :latitude, :userId);');
