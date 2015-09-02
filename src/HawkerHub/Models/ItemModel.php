@@ -24,9 +24,9 @@ class ItemModel extends \HawkerHub\Models\Model{
 	public function __construct($itemId,$addedDate,$itemName,$photoURL,$caption,$longtitude,$latitude,$user,$comments, $likes) {
 		$this->itemId = $itemId;
 		$this->addedDate = $addedDate;
-		$this->itemName = $itemName;
+		$this->itemName = html_entity_decode($itemName, ENT_QUOTES, 'UTF-8');
 		$this->photoURL = $photoURL;
-		$this->caption = $caption;
+		$this->caption = html_entity_decode($caption, ENT_QUOTES, 'UTF-8');
 		$this->longtitude = $longtitude;
 		$this->latitude = $latitude;
 		$this->user = $user;

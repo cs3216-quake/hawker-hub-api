@@ -18,7 +18,7 @@ class CommentModel extends \HawkerHub\Models\Model{
     $this->commentId = $commentId;
     $this->commentDate = $commentDate;
     $this->user = $user;
-    $this->message = $message;
+    $this->message = html_entity_decode($message, ENT_QUOTES, 'UTF-8');
   }
 
   public static function deleteComment($itemId, $commentId, $userId) {
