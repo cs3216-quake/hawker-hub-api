@@ -24,7 +24,6 @@ class UserController extends \HawkerHub\Controllers\Controller {
 		$this->fb = new Facebook([
 			'app_id' => FB_APP_ID,
 			'app_secret' => FB_SECRET,
-			'default_graph_version' => 'v2.4',
 			'cookie' => true
 			]);
 	}
@@ -82,6 +81,7 @@ class UserController extends \HawkerHub\Controllers\Controller {
 
 	public function getUserInformation($userId) {
 		$app = \Slim\Slim::getInstance();
+		if($this->isLoggedIn()) {
 		$user = UserModel::findByUserId($userId);
 		if (!$user) {
 			$app->render(500, ['Status' => 'userId does not exist.' ]);
@@ -89,15 +89,22 @@ class UserController extends \HawkerHub\Controllers\Controller {
 			$this->getAllFacebookFriends();
 			$app->render(200, (array) $user );
 		}
+		} else {
+			$app->render(401, ['Status' => 'Not logged in.' ]);
+		}
 	}
 
 	public function getUserItems($userId, $startAt = 0, $limit = 15) {
 		$app = \Slim\Slim::getInstance();
-		$items = UserModel::getItemsFromUserId($userId, $startAt, $limit, $_SESSION['userId'], $this->getAllFacebookFriendsId());
-		if (!$items) {
-			$app->render(500, ['Status' => 'userId does not exist.' ]);
+		if($this->isLoggedIn()) {
+			$items = UserModel::getItemsFromUserId($userId, $startAt, $limit, $_SESSION['userId'], $this->getAllFacebookFriendsId());
+			if (!$items) {
+				$app->render(500, ['Status' => 'userId does not exist.' ]);
+			} else {
+				$app->render(200, $items);
+			}
 		} else {
-			$app->render(200, $items);
+			$app->render(401, ['Status' => 'Not logged in.' ]);
 		}
 	}
 
@@ -127,7 +134,6 @@ class UserController extends \HawkerHub\Controllers\Controller {
 	}
 
 	public function logout() {
-
 		$app = \Slim\Slim::getInstance();
 		if ($this->isLoggedIn()) {
 			$this->destroySession();
@@ -138,7 +144,7 @@ class UserController extends \HawkerHub\Controllers\Controller {
 	}
 
 	public function isLoggedIn() {
-		if (@$_SESSION['fb_access_token']) {
+		if (@$_SESSION['fb_access_token']&&@$_SESSION['userId']) {
 			try {
 				$oAuth2Client = $this->fb->getOAuth2Client();
 

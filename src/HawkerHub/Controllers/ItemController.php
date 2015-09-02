@@ -6,8 +6,6 @@ use \HawkerHub\Models\ItemModel;
 use \HawkerHub\Models\UserModel;
 use \Facebook\Facebook;
 use \Facebook\Exceptions\FacebookResponseException;
-use \Facebook\Exceptions\FacebookSDKException;
-use \Facebook\SignedRequest;
 
 /**
  * Class RegisterController
@@ -21,7 +19,6 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 		$this->fb = new Facebook([
 			'app_id' => FB_APP_ID,
 			'app_secret' => FB_SECRET,
-			'default_graph_version' => 'v2.4',
 			'cookie' => true
 			]);
 	}
@@ -37,20 +34,24 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 			if (!$success) {
 				$app->render(500, ['Status' => 'An error occured while adding item.' ]);
 			} else {
-				$response = $this->fb->POST(
-				  'me/objects/hawker-hub:food',
-				  array( 'object' =>
-				  json_encode(array(
-				    'og:url' => 'http://hawkerhub.quanyang.me/item/'.$success->itemId,
-				    'og:title' => $success->itemName,
-				    'og:type' => 'hawker-hub:food',
-				    'og:image' => $success->photoURL,
-				    'og:description' => $success->caption,
-				    'fb:app_id' => '1466024120391100'
-				  ))
-				  ),
-				  $_SESSION['fb_access_token']
-				);
+				try {
+					$response = $this->fb->POST(
+						'me/objects/hawker-hub:food',
+						array( 'object' =>
+							json_encode(array(
+								'og:url' => 'http://hawkerhub.quanyang.me/food/'.$success->itemId,
+								'og:title' => $success->itemName,
+								'og:type' => 'hawker-hub:food',
+								'og:image' => $success->photoURL,
+								'og:description' => $success->caption,
+								'fb:app_id' => '1466024120391100'
+								))
+							),
+						$_SESSION['fb_access_token']
+						);
+				} catch (FacebookResponseException $e) {
+
+				}
 				$app->render(201, (array) $success);
 			}
 		} else {
@@ -77,24 +78,34 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 	public function findByItemId($itemId) {
 		$app = \Slim\Slim::getInstance();
 		$userController = new \HawkerHub\Controllers\UserController();
-		$item = ItemModel::findByItemId($itemId,$_SESSION['userId'],$userController->getAllFacebookFriendsId());
-		if ($item) {
-			$app->render(200, (array) $item);
+		if($userController->isLoggedIn()) {
+			$item = ItemModel::findByItemId($itemId,$_SESSION['userId'],$userController->getAllFacebookFriendsId());
+			if ($item) {
+				$app->render(200, (array) $item);
+			} else {
+				$app->render(500, ['Status' => 'Item not found.']);
+			}
 		} else {
-			$app->render(500, ['Status' => 'Item not found.']);
+			$app->render(401, array("Status" => "User not logged in"));
 		}
 	}
 
 	public function listFoodItem($orderBy = "id", $startAt = 0, $limit = 15, $latitude, $longtitude, $keyword = '') {
-		if (!empty($keyword)) {
+		$userController = new \HawkerHub\Controllers\UserController();
+		if($userController->isLoggedIn()) {
+			if (!empty($keyword)) {
 			// Search by keyword
-			$this->searchFoodItemByKeyword($orderBy, $startAt, $limit, $keyword);
-		}else if ($orderBy == 'location' && @$latitude && @$longtitude) {
+				$this->searchFoodItemByKeyword($orderBy, $startAt, $limit, $keyword);
+			}else if ($orderBy == 'location' && @$latitude && @$longtitude) {
 			//Sort by location
-			$this->listFoodItemSortedByLocation($startAt,$limit,$latitude,$longtitude);
-		} else {
+				$this->listFoodItemSortedByLocation($startAt,$limit,$latitude,$longtitude);
+			} else {
 			//Sort by most recent
-			$this->listFoodItemSortedByMostRecent($startAt,$limit);
+				$this->listFoodItemSortedByMostRecent($startAt,$limit);
+			}
+		} else {
+			$app = \Slim\Slim::getInstance();
+			$app->render(401, array("Status" => "User not logged in"));
 		}
 	}
 

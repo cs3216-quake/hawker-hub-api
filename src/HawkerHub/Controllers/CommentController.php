@@ -3,6 +3,8 @@
 namespace HawkerHub\Controllers;
 
 use \HawkerHub\Models\CommentModel;
+use \Facebook\Facebook;
+use \Facebook\Exceptions\FacebookResponseException;
 
 /**
  * Class CommentController
@@ -11,21 +13,31 @@ use \HawkerHub\Models\CommentModel;
  * @package HawkerHub
  **/
 class CommentController extends \HawkerHub\Controllers\Controller {
-
+    private $fb;
     public function __construct() {
+        $this->fb = new Facebook([
+            'app_id' => FB_APP_ID,
+            'app_secret' => FB_SECRET,
+            'cookie' => true
+            ]);
     }
 
     public function listComments($itemId) {
         $app = \Slim\Slim::getInstance();
         $userController = new \HawkerHub\Controllers\UserController();
-        $facebookFriendsId = $userController->getAllFacebookFriendsId();
-        $ownUserId = @$_SESSION['userId']?$_SESSION['userId']:"";
 
-        $commentData = CommentModel::findCommentsByItem($itemId, $ownUserId, $facebookFriendsId);
-        if (empty($commentData)) {
-            $app->render(200, []);
+        if($userController->isLoggedIn()) {
+            $facebookFriendsId = $userController->getAllFacebookFriendsId();
+            $ownUserId = @$_SESSION['userId']?$_SESSION['userId']:"";
+
+            $commentData = CommentModel::findCommentsByItem($itemId, $ownUserId, $facebookFriendsId);
+            if (empty($commentData)) {
+                $app->render(200, []);
+            } else {
+                $app->render(200, $commentData);
+            }
         } else {
-            $app->render(200, $commentData);
+            $app->render(401, array("Status" => "User not logged in"));
         }
     }
 
@@ -56,6 +68,16 @@ class CommentController extends \HawkerHub\Controllers\Controller {
                 $currUserId = $this->getCurrentUserId();
                 $result = CommentModel::addCommentByItem($itemId, $currUserId, $message);
                 if($result) {
+                    try {
+                        $response = $this->fb->POST(
+                          'me/hawker-hub:commented_on',
+                          array(
+                            'food' => 'http://hawkerhub.quanyang.me/food/'.$itemId
+                            ),
+                          $_SESSION['fb_access_token']
+                          );
+                    } catch (FacebookResponseException $e) {
+                    }
                     $app->render(200, array("Status" => "OK"));
                 } else {
                     $app->render(500, array("Status" => "Unable to comment on item"));

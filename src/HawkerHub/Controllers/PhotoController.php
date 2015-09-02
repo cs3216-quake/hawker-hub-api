@@ -41,11 +41,11 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
         }
     }
 
-    public function isFileValid($file) {
+    private function isFileValid($file) {
         return ( isset($file) && $file['error'] == UPLOAD_ERR_OK );
     }
 
-    public function createFileInfo($photoFile, $host){
+    private function createFileInfo($photoFile, $host){
         $app = \Slim\Slim::getInstance();
         $info = array();
         $info['DIRECTORY'] = 'uploads/';
@@ -59,19 +59,24 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
 
     public function downloadPhoto($filename) {
         $app = \Slim\Slim::getInstance();
-        $dir = 'uploads/';
-        $fileUri = $dir . $filename;
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime = finfo_file($finfo, $fileUri);
-        finfo_close($finfo);
-        if (file_exists($fileUri)) {
-            header('Content-Disposition: inline; filename="'.basename($filename).'"');
-            header('Cache-Control: must-revalidate');
-            header('Content-Length: ' . filesize($fileUri));
-            $app->response()->header("Content-Type", $mime);
-            readfile($fileUri);
+        $userController = new \HawkerHub\Controllers\UserController();
+        if($userController->isLoggedIn()) {
+            $dir = 'uploads/';
+            $fileUri = $dir . $filename;
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = finfo_file($finfo, $fileUri);
+            finfo_close($finfo);
+            if (file_exists($fileUri)) {
+                header('Content-Disposition: inline; filename="'.basename($filename).'"');
+                header('Cache-Control: must-revalidate');
+                header('Content-Length: ' . filesize($fileUri));
+                $app->response()->header("Content-Type", $mime);
+                readfile($fileUri);
+            } else {
+                $app->render(404);
+            }
         } else {
-            $app->render(404);
+            $app->render(401, array("Status" => "User not logged in"));
         }
     }
 

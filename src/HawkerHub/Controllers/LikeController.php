@@ -3,6 +3,8 @@
 namespace HawkerHub\Controllers;
 
 use \HawkerHub\Models\LikeModel;
+use \Facebook\Facebook;
+use \Facebook\Exceptions\FacebookResponseException;
 
 /**
  * Class ItemController
@@ -11,8 +13,13 @@ use \HawkerHub\Models\LikeModel;
  * @package HawkerHub
  **/
 class LikeController extends \HawkerHub\Controllers\Controller {
-
+    private $fb;
     public function __construct() {
+        $this->fb = new Facebook([
+            'app_id' => FB_APP_ID,
+            'app_secret' => FB_SECRET,
+            'cookie' => true
+            ]);
     }
 
     public function deleteLike($itemId) {
@@ -34,15 +41,20 @@ class LikeController extends \HawkerHub\Controllers\Controller {
     public function listLikes($itemId) {
         $app = \Slim\Slim::getInstance();
         $userController = new \HawkerHub\Controllers\UserController();
-        $facebookFriendsId = $userController->getAllFacebookFriendsId();
-        $ownUserId = @$_SESSION['userId']?$_SESSION['userId']:"";
 
-        $likeData = LikeModel::findLikesByItem($itemId, $ownUserId, $facebookFriendsId);
-        if (empty($likeData)) {
-            $app->render(200, []);
+        if($userController->isLoggedIn()) {
+            $facebookFriendsId = $userController->getAllFacebookFriendsId();
+            $ownUserId = @$_SESSION['userId']?$_SESSION['userId']:"";
+
+            $likeData = LikeModel::findLikesByItem($itemId, $ownUserId, $facebookFriendsId);
+            if (empty($likeData)) {
+                $app->render(200, []);
+            } else {
+                $app->render(200, $likeData);
+
+            }
         } else {
-            $app->render(200, $likeData);
-
+            $app->render(401, array("Status" => "User not logged in"));
         }
     }
 
@@ -56,6 +68,16 @@ class LikeController extends \HawkerHub\Controllers\Controller {
                 $currUserId = $this->getCurrentUserId();    
                 $result = LikeModel::addLikeByItemId($itemId, $currUserId);
                 if($result) {
+                    try {
+                        $response = $this->fb->POST(
+                          'me/hawker-hub:liked',
+                          array(
+                            'food' => 'http://hawkerhub.quanyang.me/food/'.$itemId
+                            ),
+                          $_SESSION['fb_access_token']
+                          );
+                    } catch (FacebookResponseException $e) {
+                    }
                     $app->render(200, array("Status" => "OK"));
                 } else {
                     $app->render(500, array("Status" => "Unable to like item"));
