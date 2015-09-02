@@ -48,7 +48,7 @@ class CommentModel extends \HawkerHub\Models\Model{
     $ownUserId = intval($ownUserId);
     $facebookFriendsId = implode(",",$facebookFriendsId);
 
-    $req = $db->prepare('SELECT * FROM Comment,User,Item WHERE Comment.userId = User.userId and Comment.itemId = Item.itemId and (User.publicProfile = 1 OR User.UserId = :ownUserId OR User.providerUserId IN (:facebookFriendsId)) and Comment.itemId = :itemId');
+    $req = $db->prepare('SELECT * FROM Comment,Item,User WHERE Comment.userId = User.userId and Comment.itemId = Item.itemId and (User.publicProfile = 1 OR User.UserId = :ownUserId OR User.providerUserId IN (:facebookFriendsId)) and Comment.itemId = :itemId');
     // the query was prepared, now we replace :id with our actual $id value
     $req->execute(array(
       'itemId' => $itemId,
