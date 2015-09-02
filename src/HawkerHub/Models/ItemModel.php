@@ -166,7 +166,7 @@ class ItemModel extends \HawkerHub\Models\Model{
 			break;
 		}
 
-		$req = $db->prepare("SELECT * FROM Item,User WHERE Item.UserId = User.UserId and (User.publicProfile = 1 OR User.UserId = :ownUserId OR User.providerUserId IN (:facebookFriendsId)) AND Item.itemName LIKE :keyword OR Item.caption LIKE :keyword ORDER BY $sort LIMIT :startAt, :endAt");
+		$req = $db->prepare("SELECT * FROM Item,User WHERE Item.UserId = User.UserId and (User.publicProfile = 1 OR User.UserId = :ownUserId OR User.providerUserId IN (:facebookFriendsId)) AND (Item.itemName LIKE :keyword OR Item.caption LIKE :keyword) ORDER BY $sort LIMIT :startAt, :endAt");
 
 		$req->bindParam(':keyword', $find );
 		$req->bindParam(':startAt', $startAt, \PDO::PARAM_INT);
