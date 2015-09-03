@@ -79,7 +79,7 @@ class App {
 
                     $app->post('/deauthorize', function() use($app,$userController) {
                         $allPostVars = $app->request->post();
-                        $signed_request = $allPostVars['signed_request'];
+                        $signed_request = @$allPostVars['signed_request']?$allPostVars['signed_request']:"";
                         $userController->deauthorizeFacebooks($signed_request);
                     });
 
@@ -205,7 +205,8 @@ class App {
                             $app->post('', function($id) use ($app) {
                                 $commentController = new \HawkerHub\Controllers\CommentController($app);
                                 $allPostVars = $app->request->post();
-                                $commentController->insertComment($id, $allPostVars['message']);
+                                $message = @$allPostVars['message']?$allPostVars['message']:""; 
+                                $commentController->insertComment($id, $message);
                             });
 
                             // Delete
