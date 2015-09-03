@@ -105,12 +105,9 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
         header('Last-Modified: '.gmdate('D, d M Y H:i:s', $fileModTime).' GMT', true, 304);
       } else {
         // Image not cached or cache outdated, we respond '200 OK' and output the image.
-
-
         header('Content-Disposition: inline; filename="'.basename($graphicFileName).'"');
         $app->response()->header("Content-Type", $fileType);
         header('Last-Modified: '.gmdate('D, d M Y H:i:s', $fileModTime).' GMT', true, 200);
-        header('Content-type: image/'.$fileType);
         header('Content-transfer-encoding: binary');
         header('Content-length: '.filesize($graphicFileName));
         readfile($graphicFileName);
