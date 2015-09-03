@@ -53,7 +53,7 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
     }
 
     private function isFileValid($file) {
-        return ( isset($file['photoData']) && $file['error'] == UPLOAD_ERR_OK );
+        return ( isset($file['photoData']) && $file['photoData']['error'] == UPLOAD_ERR_OK );
     }
 
     private function createFileInfo($photoFile, $host){
