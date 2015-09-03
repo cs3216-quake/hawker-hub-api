@@ -77,6 +77,11 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
         }
 
         $fileName = PhotoModel::getFileNameFromUniqueId($uniqueId);
+
+        if (empty($fileName)) {
+            $this->downloadPhoto('9d3095edf29f55b5f0a0cb863aa262cd');
+            return;
+        }
         $dir = 'uploads/';
         $fileUri = $dir . $fileName;
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -89,7 +94,7 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
             $app->response()->header("Content-Type", $mime);
             readfile($fileUri);
         } else {
-            $app->render(404);
+            $this->downloadPhoto('9d3095edf29f55b5f0a0cb863aa262cd');
         }
     }
 
