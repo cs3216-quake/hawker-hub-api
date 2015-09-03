@@ -6,45 +6,48 @@ $user 		= getenv('MYSQL_ENV_MYSQL_USER');
 $password = getenv('MYSQL_ENV_MYSQL_PASSWORD');
 $dbname   = getenv('MYSQL_ENV_MYSQL_DATABASE');
 
-$con = new mysqli($host, $user, $password, $dbname, $port)
-	or die ('Could not connect to the database server' . mysqli_connect_error());
-mysqli_set_charset($con,'utf8');
 echo "Building SQL Database from 'database.sql'";
-print_r(run_sql_file($con,"database.sql"));
-print_r(run_sql_file($con,"seed.sql"));
 
-function run_sql_file($con,$location){
-	$commands = file_get_contents($location);
-
-	$lines = explode("\n",$commands);
-	$commands = '';
-	foreach($lines as $line){
-		$line = trim($line);
-		if( $line && !startsWith($line,'--') ){
-			$commands .= $line . "\n";
-		}
+try{
+    // db connection
+	$mysqli = new mysqli($host, $user, $password, $dbname, $port);
+	mysqli_set_charset($mysqli,'utf8');
+	if($mysqli->connect_errno){
+		throw new Exception("Connection Failed: [".$mysqli->connect_errno. "] : ".$mysqli->connect_error );
+		exit();
 	}
 
-	$commands = explode(";", $commands);
-	$total = $success = 0;
-	foreach($commands as $command){
-		if(trim($command)){
-			if (mysqli_query($con,$command)) {
-				$success++;
-			} else {
-				echo mysqli_error($con);
-			}
-			$total += 1;
-		}
+    // read file.
+    // This file has multiple sql statements.
+	$file_sql = file_get_contents("database.sql");
+	$file_sql .= file_get_contents("seed.sql");
+
+	if($file_sql == "null" || empty($file_sql) || strlen($file_sql) <= 0){
+		throw new Exception("File is empty. I wont run it..");
 	}
 
-	return array(
-		"success" => $success,
-		"total" => $total
-	);
+    //run the sql file contents through the mysqli's multi_query function.
+    // here is where it gets complicated...
+    // if the first query has errors, here is where you get it.
+	$sqlFileResult = $mysqli->multi_query($file_sql);
+    // this returns false only if there are errros on first sql statement, it doesn't care about the rest of the sql statements.
+
+	$sqlCount = 1;
+	if( $sqlFileResult == false ){
+		throw new Exception("File:  , Query#[".$sqlCount."], [".$mysqli->errno."]: '".$mysqli->error."' }");
+	}
+
+    // so handle the errors on the subsequent statements like this.
+    // while I have more results. This will start from the second sql statement. The first statement errors are thrown above on the $mysqli->multi_query("SQL"); line
+	while($mysqli->more_results()){
+		$sqlCount++;
+        // load the next result set into mysqli's active buffer. if this fails the $mysqli->error, $mysqli->errno will have appropriate error info.
+		if($mysqli->next_result() == false){
+			throw new Exception("File:  , Query#[".$sqlCount."], Error No: [".$mysqli->errno."]: '".$mysqli->error."' }");
+		}
+	}
+	echo $sqlCount . "Completed\n";
 }
-
-function startsWith($haystack, $needle){
-	$length = strlen($needle);
-	return (substr($haystack, 0, $length) === $needle);
+catch(Exception $e){
+	echo $e->getMessage(). " <pre>".$e->getTraceAsString()."</pre>";
 }
