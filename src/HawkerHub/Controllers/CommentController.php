@@ -28,7 +28,7 @@ class CommentController extends \HawkerHub\Controllers\Controller {
 
         if (!is_int(intval($itemId))) {
             $app->render(400, ['Status' => 'input is invalid.' ]);
-            return
+            return;
         }
 
         if($userController->isLoggedIn()) {
@@ -52,7 +52,7 @@ class CommentController extends \HawkerHub\Controllers\Controller {
 
         if (!is_int(intval($itemId)) && !is_int(intval($commentId))) {
             $app->render(400, ['Status' => 'input is invalid.' ]);
-            return
+            return;
         }
 
         if ($userController->isLoggedIn()) {
@@ -70,9 +70,9 @@ class CommentController extends \HawkerHub\Controllers\Controller {
     public function insertComment($itemId, $message){
         $app = \Slim\Slim::getInstance();
 
-        if (!is_int(intval($itemId)) || is_empty($message) || is_null($message) || strlen($message) > 255 ) {
+        if (!is_int(intval($itemId)) || empty($message) || is_null($message) || strlen($message) > 255 ) {
             $app->render(400, ['Status' => 'input is invalid.' ]);
-            return
+            return;
         }
 
         $message = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');

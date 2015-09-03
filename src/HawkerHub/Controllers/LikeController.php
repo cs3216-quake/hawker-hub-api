@@ -27,7 +27,7 @@ class LikeController extends \HawkerHub\Controllers\Controller {
 
         if (!is_int(intval($itemId))) {
             $app->render(400, ['Status' => 'input is invalid.' ]);
-            return
+            return;
         }
 
         $userController = new \HawkerHub\Controllers\UserController();
@@ -50,7 +50,7 @@ class LikeController extends \HawkerHub\Controllers\Controller {
 
         if (!is_int(intval($itemId))) {
             $app->render(400, ['Status' => 'input is invalid.' ]);
-            return
+            return;
         }
 
         if($userController->isLoggedIn()) {
@@ -75,7 +75,7 @@ class LikeController extends \HawkerHub\Controllers\Controller {
 
         if (!is_int(intval($itemId))) {
             $app->render(400, ['Status' => 'input is invalid.' ]);
-            return
+            return;
         }
         
         if ($userController->isLoggedIn()) {

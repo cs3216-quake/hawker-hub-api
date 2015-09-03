@@ -90,7 +90,7 @@ class UserController extends \HawkerHub\Controllers\Controller {
 
 		if (!is_int(intval($userId))) {
 			$app->render(400, ['Status' => 'input is invalid.' ]);
-			return
+			return;
 		}
 
 		if($this->isLoggedIn()) {

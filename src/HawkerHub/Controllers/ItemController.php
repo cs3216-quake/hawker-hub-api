@@ -26,7 +26,7 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 	public function createNewItem($itemName, $photoURL, $caption, $longtitude=0, $latitude=0) {
 		$app = \Slim\Slim::getInstance();
 
-		if (!is_int(intval($longtitude)) ||!is_int(intval($latitude)) || is_empty($caption) || is_null($caption) || strlen($caption) > 255 || is_empty($itemName) || is_null($itemName) || strlen($itemName) > 255 ) {
+		if (!is_int(intval($longtitude)) ||!is_int(intval($latitude)) || empty($caption) || is_null($caption) || strlen($caption) > 255 || empty($itemName) || is_null($itemName) || strlen($itemName) > 255 ) {
 			$app->render(400, ['Status' => 'input is invalid.' ]);
 			return;
 		}
@@ -72,7 +72,7 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 
 		if (!is_int(intval($itemId))) {
 			$app->render(400, ['Status' => 'input is invalid.' ]);
-			return
+			return;
 		}
 
 		$userController = new \HawkerHub\Controllers\UserController();
@@ -94,7 +94,7 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 
 		if (!is_int(intval($itemId))) {
 			$app->render(400, ['Status' => 'input is invalid.' ]);
-			return
+			return;
 		}
 
 		$userController = new \HawkerHub\Controllers\UserController();

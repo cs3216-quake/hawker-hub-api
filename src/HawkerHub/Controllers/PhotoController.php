@@ -22,7 +22,7 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
             $currUserId = $this->getCurrentUserId();
 
             //Check if upload is successful
-            if ($this->isFileValid($rawFiles['photoData'])) {
+            if ($this->isFileValid($rawFiles)) {
 
                 $photoFile = $rawFiles['photoData'];
                 $fileInfo = $this->createFileInfo($photoFile, $host);
@@ -45,7 +45,7 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
                 }
 
             } else {
-                $app->render(400, ['status' => 'File missing or not uploaded properly']);
+                $app->render(400, ['Status' => 'File missing or not uploaded properly']);
             }
         } else {
             $app->render(401, array("Status" => "User not logged in"));
@@ -53,7 +53,7 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
     }
 
     private function isFileValid($file) {
-        return ( isset($file) && $file['error'] == UPLOAD_ERR_OK );
+        return ( isset($file['photoData']) && $file['error'] == UPLOAD_ERR_OK );
     }
 
     private function createFileInfo($photoFile, $host){
@@ -71,9 +71,9 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
     public function downloadPhoto($uniqueId) {
         $app = \Slim\Slim::getInstance();
 
-        if (is_empty($uniqueId) || is_null($uniqueId) || strlen($uniqueId) > 255 ) {
+        if (empty($uniqueId) || is_null($uniqueId) || strlen($uniqueId) > 255 ) {
             $app->render(400, ['Status' => 'input is invalid.' ]);
-            return
+            return;
         }
 
         $fileName = PhotoModel::getFileNameFromUniqueId($uniqueId);
