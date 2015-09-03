@@ -70,6 +70,12 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
 
     public function downloadPhoto($uniqueId) {
         $app = \Slim\Slim::getInstance();
+
+        if (is_empty($uniqueId) || is_null($uniqueId) || strlen($uniqueId) > 255 ) {
+            $app->render(400, ['Status' => 'input is invalid.' ]);
+            return
+        }
+
         $fileName = PhotoModel::getFileNameFromUniqueId($uniqueId);
         $dir = 'uploads/';
         $fileUri = $dir . $fileName;

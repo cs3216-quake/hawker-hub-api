@@ -25,6 +25,12 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 
 	public function createNewItem($itemName, $photoURL, $caption, $longtitude=0, $latitude=0) {
 		$app = \Slim\Slim::getInstance();
+
+		if (!is_int(intval($longtitude)) ||!is_int(intval($latitude)) || is_empty($caption) || is_null($caption) || strlen($caption) > 255 || is_empty($itemName) || is_null($itemName) || strlen($itemName) > 255 ) {
+			$app->render(400, ['Status' => 'input is invalid.' ]);
+			return;
+		}
+
 		$caption = htmlspecialchars($caption, ENT_QUOTES, 'UTF-8');
 		$itemName = htmlspecialchars($itemName, ENT_QUOTES, 'UTF-8');
 		$userController = new \HawkerHub\Controllers\UserController();
@@ -63,6 +69,12 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 
 	public function deleteItem($itemId) {
 		$app = \Slim\Slim::getInstance();
+
+		if (!is_int(intval($itemId))) {
+			$app->render(400, ['Status' => 'input is invalid.' ]);
+			return
+		}
+
 		$userController = new \HawkerHub\Controllers\UserController();
 
 		if ($userController->isLoggedIn()) {
@@ -79,6 +91,12 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 
 	public function findByItemId($itemId) {
 		$app = \Slim\Slim::getInstance();
+
+		if (!is_int(intval($itemId))) {
+			$app->render(400, ['Status' => 'input is invalid.' ]);
+			return
+		}
+
 		$userController = new \HawkerHub\Controllers\UserController();
 		if($userController->isLoggedIn()) {
 			$item = ItemModel::findByItemId($itemId,$_SESSION['userId'],$userController->getAllFacebookFriendsId());
@@ -94,6 +112,12 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 
 	public function listFoodItem($orderBy = "id", $startAt = 0, $limit = 15, $latitude, $longtitude, $keyword = '') {
 		$userController = new \HawkerHub\Controllers\UserController();
+
+		if (!is_int(intval($longtitude)) ||!is_int(intval($latitude)) || !is_int(intval($startAt)) || !is_int(intval($limit))) {
+			$app->render(400, ['Status' => 'input is invalid.' ]);
+			return;
+		}
+
 		if($userController->isLoggedIn()) {
 			if (!empty($keyword)) {
 			// Search by keyword

@@ -62,6 +62,12 @@ class UserController extends \HawkerHub\Controllers\Controller {
 
 	public function deauthorizeFacebooks($signed_request) {
 		$app = \Slim\Slim::getInstance();
+
+		if (!@$signed_request || is_null($signed_request)) {
+			$app->render(400, ['Status' => 'input is invalid.' ]);
+			return;
+		}
+
 		try {
 			$signedRequest = new SignedRequest($this->fb->getApp(),$signed_request);
 			// Get the user ID
@@ -81,14 +87,20 @@ class UserController extends \HawkerHub\Controllers\Controller {
 
 	public function getUserInformation($userId) {
 		$app = \Slim\Slim::getInstance();
-		if($this->isLoggedIn()) {
-		$user = UserModel::findByUserId($userId);
-		if (!$user) {
-			$app->render(500, ['Status' => 'userId does not exist.' ]);
-		} else {
-			$this->getAllFacebookFriends();
-			$app->render(200, (array) $user );
+
+		if (!is_int(intval($userId))) {
+			$app->render(400, ['Status' => 'input is invalid.' ]);
+			return
 		}
+
+		if($this->isLoggedIn()) {
+			$user = UserModel::findByUserId($userId);
+			if (!$user) {
+				$app->render(500, ['Status' => 'userId does not exist.' ]);
+			} else {
+				$this->getAllFacebookFriends();
+				$app->render(200, (array) $user );
+			}
 		} else {
 			$app->render(401, ['Status' => 'Not logged in.' ]);
 		}
@@ -96,6 +108,12 @@ class UserController extends \HawkerHub\Controllers\Controller {
 
 	public function getUserItems($userId, $startAt = 0, $limit = 15) {
 		$app = \Slim\Slim::getInstance();
+
+		if (!is_int(intval($userId)) || !is_int(intval($startAt)) || !is_int(intval($limit))) {
+			$app->render(400, ['Status' => 'input is invalid.' ]);
+			return;
+		}
+
 		if($this->isLoggedIn()) {
 			$items = UserModel::getItemsFromUserId($userId, $startAt, $limit, $_SESSION['userId'], $this->getAllFacebookFriendsId());
 			if (!$items) {
@@ -110,6 +128,11 @@ class UserController extends \HawkerHub\Controllers\Controller {
 
 	public function updateSettings($data) {
 		$app = \Slim\Slim::getInstance();
+
+		if (!@$data['privacy'] || is_null($data)) {
+			$app->render(400, ['Status' => 'input is invalid.' ]);
+		}
+
 		$privacy = $data['privacy'] == "public"? 1 : 0;
 		if($this->isLoggedIn()) {
 			$success = UserModel::updateSettings($_SESSION['userId'],$privacy);

@@ -26,6 +26,11 @@ class CommentController extends \HawkerHub\Controllers\Controller {
         $app = \Slim\Slim::getInstance();
         $userController = new \HawkerHub\Controllers\UserController();
 
+        if (!is_int(intval($itemId))) {
+            $app->render(400, ['Status' => 'input is invalid.' ]);
+            return
+        }
+
         if($userController->isLoggedIn()) {
             $facebookFriendsId = $userController->getAllFacebookFriendsId();
             $ownUserId = @$_SESSION['userId']?$_SESSION['userId']:"";
@@ -45,6 +50,11 @@ class CommentController extends \HawkerHub\Controllers\Controller {
         $app = \Slim\Slim::getInstance();
         $userController = new \HawkerHub\Controllers\UserController();
 
+        if (!is_int(intval($itemId)) && !is_int(intval($commentId))) {
+            $app->render(400, ['Status' => 'input is invalid.' ]);
+            return
+        }
+
         if ($userController->isLoggedIn()) {
             $success = CommentModel::deleteComment($itemId, $commentId, $_SESSION['userId']);
             if (!$success) {
@@ -59,6 +69,12 @@ class CommentController extends \HawkerHub\Controllers\Controller {
 
     public function insertComment($itemId, $message){
         $app = \Slim\Slim::getInstance();
+
+        if (!is_int(intval($itemId)) || is_empty($message) || is_null($message) || strlen($message) > 255 ) {
+            $app->render(400, ['Status' => 'input is invalid.' ]);
+            return
+        }
+
         $message = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
         $userController = new \HawkerHub\Controllers\UserController();
 

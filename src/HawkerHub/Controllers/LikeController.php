@@ -24,6 +24,12 @@ class LikeController extends \HawkerHub\Controllers\Controller {
 
     public function deleteLike($itemId) {
         $app = \Slim\Slim::getInstance();
+
+        if (!is_int(intval($itemId))) {
+            $app->render(400, ['Status' => 'input is invalid.' ]);
+            return
+        }
+
         $userController = new \HawkerHub\Controllers\UserController();
 
         if ($userController->isLoggedIn()) {
@@ -41,6 +47,11 @@ class LikeController extends \HawkerHub\Controllers\Controller {
     public function listLikes($itemId) {
         $app = \Slim\Slim::getInstance();
         $userController = new \HawkerHub\Controllers\UserController();
+
+        if (!is_int(intval($itemId))) {
+            $app->render(400, ['Status' => 'input is invalid.' ]);
+            return
+        }
 
         if($userController->isLoggedIn()) {
             $facebookFriendsId = $userController->getAllFacebookFriendsId();
@@ -61,6 +72,11 @@ class LikeController extends \HawkerHub\Controllers\Controller {
     public function insertLike($itemId){
         $userController = new \HawkerHub\Controllers\UserController();
         $app = \Slim\Slim::getInstance();
+
+        if (!is_int(intval($itemId))) {
+            $app->render(400, ['Status' => 'input is invalid.' ]);
+            return
+        }
         
         if ($userController->isLoggedIn()) {
 
