@@ -79,7 +79,7 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
         $fileName = PhotoModel::getFileNameFromUniqueId($uniqueId);
 
         if (empty($fileName)) {
-            $this->downloadPhoto('9d3095edf29f55b5f0a0cb863aa262cd');
+            $this->downloadPhoto('608aba97aabaabf9c136b781343caf4f');
             return;
         }
         $dir = 'uploads/';
@@ -90,7 +90,7 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
         if (file_exists($fileUri) && getimagesize($fileUri)) {
             $this->displayGraphicFile($app,$fileUri,$mime);
         } else {
-            $this->downloadPhoto('9d3095edf29f55b5f0a0cb863aa262cd');
+            $this->downloadPhoto('608aba97aabaabf9c136b781343caf4f');
         }
     }
 
