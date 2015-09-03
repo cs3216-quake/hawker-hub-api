@@ -34,9 +34,9 @@ class PhotoController extends \HawkerHub\Controllers\Controller {
                     && $imageFileType != "jpeg" && $imageFileType != "gif") {
                     $app->render(415, ['Status' => 'Inappropriate file format']);
                 } else {
-                    //  Save to directory and db
-                    $result = PhotoModel::saveToFile($currUserId, $photoFile['tmp_name'], $fileInfo['MIME-TYPE'], $fileInfo['DIRECTORY'], $fileInfo['ROUTE']);
+                        //  Save to directory and db
 
+                    $result = PhotoModel::saveToFile($currUserId, $photoFile['tmp_name'], $fileInfo['MIME-TYPE'], $fileInfo['DIRECTORY'], $fileInfo['ROUTE']);
                     if(is_null($result)) {
                         $app->render(500, array("Status" => "Unable to save file"));
                     } else {

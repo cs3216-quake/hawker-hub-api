@@ -9,6 +9,7 @@ class PhotoModel extends \HawkerHub\Models\Model {
   public $photoId;
   public $photoUrl;
   public $userId;
+  const COMPRESSION_RATE = 100;
 
   // Default constructor
   public function __construct($photoId, $photoUrl, $userId) {
@@ -76,11 +77,72 @@ class PhotoModel extends \HawkerHub\Models\Model {
       $name = "img-" . $id . '.' . $ext;
     }
 
-    if (move_uploaded_file($data, $dir . $name) == true) {
+    $compressPath =   PhotoModel::compress($data,$dir . $name);
+    PhotoModel::createThumbnail(512,400,$compressPath,$compressPath);
+
+    if (file_exists($compressPath)) {
       return PhotoModel::saveToDatabase($name, $route, $owner);
     } else {
       return null;
     }
   }
+
+  private static function createThumbnail($new_width,$new_height,$uploadDir,$moveToDir)
+  {
+    $path = $uploadDir;
+
+    $mime = getimagesize($path);
+
+    if($mime['mime']=='image/png'){ $src_img = imagecreatefrompng($path); }
+    if($mime['mime']=='image/jpg'){ $src_img = imagecreatefromjpeg($path); }
+    if($mime['mime']=='image/jpeg'){ $src_img = imagecreatefromjpeg($path); }
+    if($mime['mime']=='image/pjpeg'){ $src_img = imagecreatefromjpeg($path); }
+
+    $old_x          =   imageSX($src_img);
+    $old_y          =   imageSY($src_img);
+
+    $thumb_w    =   $new_width;
+    $thumb_h    =   $old_y*($new_width/$old_x);
+  
+
+    $dst_img        =   ImageCreateTrueColor($thumb_w,$thumb_h);
+
+    imagecopyresampled($dst_img,$src_img,0,0,0,0,$thumb_w,$thumb_h,$old_x,$old_y); 
+
+
+    // New save location
+    $new_thumb_loc = $moveToDir;
+
+    if($mime['mime']=='image/png'){ $result = imagepng($dst_img,$new_thumb_loc,100); }
+    if($mime['mime']=='image/jpg'){ $result = imagejpeg($dst_img,$new_thumb_loc,100); }
+    if($mime['mime']=='image/jpeg'){ $result = imagejpeg($dst_img,$new_thumb_loc,100); }
+    if($mime['mime']=='image/pjpeg'){ $result = imagejpeg($dst_img,$new_thumb_loc,100); }
+
+    if ($thumb_h > $new_height) {
+      $to_crop_array = array('x' =>0 , 'y' => (($thumb_h-$new_height)/2.0), 'width' => $new_width, 'height'=> $new_height);
+      $dst_img = imagecrop($dst_img, $to_crop_array);
+      $result = imagejpeg($dst_img,$new_thumb_loc,100);
+    }
+
+    imagedestroy($dst_img); 
+    imagedestroy($src_img);
+
+    return $result;
+  }
+
+  private static function compress($source,$dest) {
+   $info = getimagesize($source); 
+   if ($info['mime'] == 'image/jpeg') {
+     $image = imagecreatefromjpeg($source);
+   } elseif ($info['mime'] == 'image/gif') {
+     $image = imagecreatefromgif($source); 
+   } elseif ($info['mime'] == 'image/png') {
+     $image = imagecreatefrompng($source); 
+   } 
+
+   imagejpeg($image, $dest, PhotoModel::COMPRESSION_RATE); 
+   imagedestroy($image);
+   return $dest;
+ }
 }
 
