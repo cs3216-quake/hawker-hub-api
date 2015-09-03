@@ -85,7 +85,7 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 			if ($item) {
 				$app->render(200, (array) $item);
 			} else {
-				$app->render(500, ['Status' => 'Item not found.']);
+				$app->render(200, []);
 			}
 		} else {
 			$app->render(401, array("Status" => "User not logged in"));
@@ -118,7 +118,7 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 		if ($item) {
 			$app->render(200, $item);
 		} else {
-			$app->render(500, ['Status' => 'No items found.']);
+			$app->render(200, []);
 		}
 	}
 
@@ -131,7 +131,7 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 		if ($item) {
 			$app->render(200, $item);
 		} else {
-			$app->render(500, ['Status' => 'No items found.']);
+			$app->render(200, []);
 		}
 	}
 
@@ -143,7 +143,7 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 		if ($item) {
 			$app->render(200, $item);
 		} else {
-			$app->render(500, ['Status' => 'No items found.']);
+			$app->render(200, []);
 		}
 	}
 
