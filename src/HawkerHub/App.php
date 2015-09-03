@@ -49,12 +49,16 @@ class App {
         $app = $this->app;
         $app->response->headers->set('Access-Control-Allow-Origin', '*');
 
+        $app->get('/food/:itemId/', function($itemId) use ($app) {
+            require_once('foodTemplate.php');
+        });
+
         $app->group('/api', function() use ($app) {
 
             $app->group('/v1', function () use ($app) {
 
                 $app->get('', function () use ($app) {
-                    $this->app->render(200, ['Status' => 'Running']);
+                    $app->render(200, ['Status' => 'Running']);
                 });
 
                 $app->group('/users', function() use ($app) {
