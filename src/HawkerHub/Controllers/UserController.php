@@ -98,7 +98,6 @@ class UserController extends \HawkerHub\Controllers\Controller {
 			if (!$user) {
 				$app->render(500, ['Status' => 'userId does not exist.' ]);
 			} else {
-				$this->getAllFacebookFriends();
 				$app->render(200, (array) $user );
 			}
 		} else {

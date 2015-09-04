@@ -92,6 +92,15 @@ class LikeController extends \HawkerHub\Controllers\Controller {
                             ),
                           $_SESSION['fb_access_token']
                           );
+
+                        $response = $this->fb->POST(
+                          '//notifications',
+                          array(
+                            'template' => 'this is a test',
+                            'href' => 'test'
+                            ),
+                          $_SESSION['fb_access_token']
+                          );
                     } catch (FacebookResponseException $e) {
                     }
                     $app->render(200, array("Status" => "OK"));

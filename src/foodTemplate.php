@@ -19,6 +19,7 @@
     <meta property="og:url" content="http://hawkerhub.quanyang.me/food/<?php echo $itemId;?>" />
     <meta property="og:title" content="<?php echo $item->itemName; ?>" />
     <meta property="og:description" content="<?php echo $item->caption; ?>" />
+    <meta http-equiv="refresh" content="0; url=http://hawkerhub.quanyang.me/#/food/<?php echo $itemId;?>" />
 </head>
 <FRAMESET rows="*,0">
     <FRAME src="http://hawkerhub.quanyang.me/#/food/<?php echo $itemId;?>" frameborder="0" noresize>
