@@ -6,6 +6,9 @@
         $userId = $_SESSION['userId'];
     }
     $item = \HawkerHub\Models\ItemModel::findByItemId($itemId, $userId, $userController->getAllFacebookFriendsId());
+    if (!$item) {
+        $app->response->headers->set("Location" ,"http://hawkerhub.quanyang.me/");
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">

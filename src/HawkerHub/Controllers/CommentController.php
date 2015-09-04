@@ -70,12 +70,12 @@ class CommentController extends \HawkerHub\Controllers\Controller {
     public function insertComment($itemId, $message){
         $app = \Slim\Slim::getInstance();
 
-        if (!is_int(intval($itemId)) || empty($message) || is_null($message) || strlen($message) > 255 ) {
+        if (!is_int(intval($itemId)) || empty(trim($message)) || is_null($message) || strlen($message) > 255 ) {
             $app->render(400, ['Status' => 'input is invalid.' ]);
             return;
         }
 
-        $message = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
+        $message = trim(htmlspecialchars($message, ENT_QUOTES, 'UTF-8'));
         $userController = new \HawkerHub\Controllers\UserController();
 
         if ($userController->isLoggedIn()) {

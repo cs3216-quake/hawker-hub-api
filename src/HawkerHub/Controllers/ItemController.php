@@ -26,13 +26,13 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 	public function createNewItem($itemName, $photoURL, $caption, $longtitude=0, $latitude=0) {
 		$app = \Slim\Slim::getInstance();
 
-		if (!is_int(intval($longtitude)) ||!is_int(intval($latitude)) || empty($caption) || is_null($caption) || strlen($caption) > 255 || empty($itemName) || is_null($itemName) || strlen($itemName) > 35 ) {
+		if (!is_int(intval($longtitude)) ||!is_int(intval($latitude)) || empty(trim($caption)) || is_null($caption) || strlen($caption) > 255 || empty(trim($itemName)) || is_null($itemName) || strlen($itemName) > 35 ) {
 			$app->render(400, ['Status' => 'input is invalid.' ]);
 			return;
 		}
 
-		$caption = htmlspecialchars($caption, ENT_QUOTES, 'UTF-8');
-		$itemName = htmlspecialchars($itemName, ENT_QUOTES, 'UTF-8');
+		$caption = trim(htmlspecialchars($caption, ENT_QUOTES, 'UTF-8'));
+		$itemName = trim(htmlspecialchars($itemName, ENT_QUOTES, 'UTF-8'));
 		$userController = new \HawkerHub\Controllers\UserController();
 
 		$longtitude= $longtitude===null?0:$longtitude;
