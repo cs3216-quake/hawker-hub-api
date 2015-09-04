@@ -119,14 +119,14 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 		}
 
 		if($userController->isLoggedIn()) {
-			if (!empty($keyword)) {
-			// Search by keyword
+			if (!empty(trim($keyword))) {
+				// Search by keyword
 				$this->searchFoodItemByKeyword($orderBy, $startAt, $limit, $keyword);
-			}else if ($orderBy == 'location' && @$latitude && @$longtitude) {
-			//Sort by location
+			}else if (($orderBy == 'location' && @$latitude && @$longtitude)) {
+				//Sort by location
 				$this->listFoodItemSortedByLocation($startAt,$limit,$latitude,$longtitude);
 			} else {
-			//Sort by most recent
+				//Sort by most recent
 				$this->listFoodItemSortedByMostRecent($startAt,$limit);
 			}
 		} else {
@@ -149,7 +149,7 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 	private function listFoodItemSortedByLocation($startAt = 0, $limit = 15, $latitude, $longtitude) {
 		$app = \Slim\Slim::getInstance();
 		$userController = new \HawkerHub\Controllers\UserController();
-		$distance = 10; //Kilometers
+		$distance = 5; //Kilometers
 
 		$item = ItemModel::listFoodItemSortedByLocation($startAt,$limit,$latitude,$longtitude,$distance,$_SESSION['userId'],$userController->getAllFacebookFriendsId());
 		if ($item) {
