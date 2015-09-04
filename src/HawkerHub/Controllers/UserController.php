@@ -216,7 +216,7 @@ class UserController extends \HawkerHub\Controllers\Controller {
 				return;
 			}
 			if (!@$accessToken) {
-				$app->render(500, ['Status' => 'Login failed', 'sess' => $_SESSION['fb_access_token']]);
+				$app->render(500, ['Status' => 'Login failed']);
 				return;
 			}
 
@@ -241,7 +241,7 @@ class UserController extends \HawkerHub\Controllers\Controller {
 
 			try {
 			  // Returns a `Facebook\FacebookResponse` object
-				$response = $this->fb->get('/me?fields=id,name', $_SESSION['fb_access_token']);
+				$response = $this->fb->get('/me?fields=id,name', $accessToken);
 			} catch(FacebookResponseException $e) {
 				$app->render(500, ['Status' => 'Login failed.' ]);
 				return;
