@@ -23,10 +23,10 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 			]);
 	}
 
-	public function createNewItem($itemName, $photoURL, $caption, $longtitude=0, $latitude=0) {
+	public function createNewItem($itemName, $photoURL, $caption, $longtitude=0, $latitude=0, $shareToFacebook) {
 		$app = \Slim\Slim::getInstance();
 
-		if (!is_int(intval($longtitude)) ||!is_int(intval($latitude)) || empty(trim($caption)) || is_null($caption) || strlen($caption) > 255 || empty(trim($itemName)) || is_null($itemName) || strlen($itemName) > 35 ) {
+		if ( !is_int(intval($longtitude)) ||!is_int(intval($latitude)) || empty(trim($caption)) || is_null($caption) || strlen($caption) > 255 || empty(trim($itemName)) || is_null($itemName) || strlen($itemName) > 35 ) {
 			$app->render(400, ['Status' => 'input is invalid.' ]);
 			return;
 		}
@@ -43,20 +43,23 @@ class ItemController extends \HawkerHub\Controllers\Controller {
 				$app->render(500, ['Status' => 'An error occured while adding item.' ]);
 			} else {
 				try {
-					$response = $this->fb->POST(
-						'me/objects/hawker-hub:food',
-						array( 'object' =>
-							json_encode(array(
-								'og:url' => 'http://hawkerhub.quanyang.me/food/'.$success->itemId,
-								'og:title' => $success->itemName,
-								'og:type' => 'hawker-hub:food',
-								'og:image' => $success->photoURL,
-								'og:description' => $success->caption,
-								'fb:app_id' => '1466024120391100'
-								))
-							),
-						$_SESSION['fb_access_token']
-						);
+
+					if ($shareToFacebook) {
+						$response = $this->fb->POST(
+							'me/objects/hawker-hub:food',
+							array( 'object' =>
+								json_encode(array(
+									'og:url' => 'http://hawkerhub.quanyang.me/food/'.$success->itemId,
+									'og:title' => $success->itemName,
+									'og:type' => 'hawker-hub:food',
+									'og:image' => $success->photoURL,
+									'og:description' => $success->caption,
+									'fb:app_id' => '1466024120391100'
+									))
+								),
+							$_SESSION['fb_access_token']
+							);
+					}
 				} catch (FacebookResponseException $e) {
 
 				}

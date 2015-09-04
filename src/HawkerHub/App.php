@@ -142,8 +142,9 @@ class App {
                         $caption = $allPostVars['caption'];
                         $longtitude = $allPostVars['longtitude'];
                         $latitude = $allPostVars['latitude'];
+                        $shareToFacebook = (@$allPostVars['shareToFacebook'] && $allPostVars['shareToFacebook'])?$allPostVars['shareToFacebook']:false;
 
-                        $itemController->createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude);
+                        $itemController->createNewItem($itemName, $photoURL, $caption, $longtitude, $latitude, $shareToFacebook);
                     });
 
                     // Route /api/v1/item/search{?keyword=<keyword>}
